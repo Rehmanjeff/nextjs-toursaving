@@ -124,7 +124,7 @@ const PayPage: FC<PayPageProps> = () => {
           </div>
         </div>
         <div>
-          <ButtonPrimary href="/">Explore more stays</ButtonPrimary>
+          <ButtonPrimary href="/">Book again</ButtonPrimary>
         </div>
       </div>
     );

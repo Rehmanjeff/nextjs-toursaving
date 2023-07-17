@@ -3,63 +3,6 @@ import ncNanoId from "@/utils/ncNanoId";
 import { Route } from "@/routers/types";
 import __megamenu from "./jsons/__megamenu.json";
 
-const megaMenuDemo: MegamenuItem[] = [
-  {
-    id: ncNanoId(),
-    image:
-      "https://images.pexels.com/photos/1591373/pexels-photo-1591373.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Company",
-    items: __megamenu.map((i) => ({
-      id: ncNanoId(),
-      href: "/",
-      name: i.Company,
-    })),
-  },
-  {
-    id: ncNanoId(),
-    image:
-      "https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "App Name",
-    items: __megamenu.map((i) => ({
-      id: ncNanoId(),
-      href: "/",
-      name: i.AppName,
-    })),
-  },
-  {
-    id: ncNanoId(),
-    image:
-      "https://images.pexels.com/photos/5059013/pexels-photo-5059013.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "City",
-    items: __megamenu.map((i) => ({
-      id: ncNanoId(),
-      href: "/",
-      name: i.City,
-    })),
-  },
-  {
-    id: ncNanoId(),
-    image:
-      "https://images.pexels.com/photos/5159141/pexels-photo-5159141.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Contruction",
-    items: __megamenu.map((i) => ({
-      id: ncNanoId(),
-      href: "/",
-      name: i.Contruction,
-    })),
-  },
-  {
-    id: ncNanoId(),
-    image:
-      "https://images.pexels.com/photos/7473041/pexels-photo-7473041.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500",
-    title: "Country",
-    items: __megamenu.map((i) => ({
-      id: ncNanoId(),
-      href: "/",
-      name: i.Country,
-    })),
-  },
-];
 
 const demoChildMenus: NavItemType[] = [
   {
@@ -174,13 +117,6 @@ export const NAVIGATION_DEMO: NavItemType[] = [
   },
   {
     id: ncNanoId(),
-    href: "/",
-    name: "Five columns",
-    type: "megaMenu",
-    megaMenu: megaMenuDemo,
-  },
-  {
-    id: ncNanoId(),
     href: "/listing-stay",
     name: "Listing Page",
     type: "dropdown",
@@ -274,96 +210,6 @@ export const NAVIGATION_DEMO: NavItemType[] = [
     children: templatesChildrenMenus,
   },
 
-  {
-    id: ncNanoId(),
-    href: "/blog",
-    name: "Other pages",
-    type: "dropdown",
-    children: otherPageChildMenus,
-  },
-];
-
-export const NAVIGATION_DEMO_2: NavItemType[] = [
-  {
-    id: ncNanoId(),
-    href: "/",
-    name: "Home",
-    type: "dropdown",
-    children: demoChildMenus,
-    isNew: true,
-  },
-
-  //
-  {
-    id: ncNanoId(),
-    href: "/listing-stay",
-    name: "Listing pages",
-    children: [
-      { id: ncNanoId(), href: "/listing-stay", name: "Stay listings" },
-      {
-        id: ncNanoId(),
-        href: "/listing-stay-map",
-        name: "Stay listings (map)",
-      },
-      { id: ncNanoId(), href: "/listing-stay-detail", name: "Stay detail" },
-
-      //
-      {
-        id: ncNanoId(),
-        href: "/listing-experiences",
-        name: "Experiences listings",
-      },
-      {
-        id: ncNanoId(),
-        href: "/listing-experiences-map",
-        name: "Experiences (map)",
-      },
-      {
-        id: ncNanoId(),
-        href: "/listing-experiences-detail",
-        name: "Experiences detail",
-      },
-    ],
-  },
-  {
-    id: ncNanoId(),
-    href: "/listing-car",
-    name: "Listing pages",
-    children: [
-      { id: ncNanoId(), href: "/listing-car", name: "Cars listings" },
-      { id: ncNanoId(), href: "/listing-car-map", name: "Cars listings (map)" },
-      { id: ncNanoId(), href: "/listing-car-detail", name: "Car detail" },
-
-      //
-      {
-        id: ncNanoId(),
-        href: "/listing-real-estate",
-        name: "Real estate listings",
-      },
-      {
-        id: ncNanoId(),
-        href: "/listing-real-estate-map",
-        name: "Real estate (map)",
-      },
-      //
-      {
-        id: ncNanoId(),
-        href: "/listing-flights",
-        name: "Flights listings",
-      },
-    ],
-  },
-
-  //
-  {
-    id: ncNanoId(),
-    href: "/author",
-    name: "Templates",
-    type: "dropdown",
-    children: templatesChildrenMenus,
-  },
-
-  //
   {
     id: ncNanoId(),
     href: "/blog",

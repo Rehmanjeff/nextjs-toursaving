@@ -2,48 +2,24 @@
 
 import { Popover, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
-import {
-  CurrencyDollarIcon,
-  CurrencyBangladeshiIcon,
-  CurrencyEuroIcon,
-  CurrencyPoundIcon,
-  CurrencyRupeeIcon,
-  BanknotesIcon,
-} from "@heroicons/react/24/outline";
+import { CurrencyDollarIcon, CurrencyBangladeshiIcon, BanknotesIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 
 export const headerCurrency = [
-  {
-    id: "EUR",
-    name: "EUR",
-    href: "##",
-    icon: CurrencyEuroIcon,
-    active: true,
-  },
-  {
-    id: "USD",
-    name: "USD",
-    href: "##",
-    icon: CurrencyDollarIcon,
-  },
-  {
-    id: "GBF",
-    name: "GBF",
-    href: "##",
-    icon: CurrencyBangladeshiIcon,
-  },
-  {
-    id: "SAR",
-    name: "SAR",
-    href: "##",
-    icon: CurrencyPoundIcon,
-  },
-  {
-    id: "QAR",
-    name: "QAR",
-    href: "##",
-    icon: CurrencyRupeeIcon,
-  },
+   {
+      id: "BD",
+      name: "BD",
+      href: "##",
+      icon: CurrencyBangladeshiIcon,
+      active: true
+   },
+   {
+      id: "USD",
+      name: "USD",
+      href: "##",
+      icon: CurrencyDollarIcon,
+      active: false
+   },
 ];
 
 export default function CurrencyDropdown() {
@@ -52,18 +28,10 @@ export default function CurrencyDropdown() {
       <Popover className="relative">
         {({ open, close }) => (
           <>
-            <Popover.Button
-              className={`
-                ${open ? "" : "text-opacity-80"}
-                group px-3 py-1.5 border-neutral-300 hover:border-neutral-400 dark:border-neutral-700 rounded-full inline-flex items-center text-sm text-gray-700 dark:text-neutral-300 font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
-            >
+            <Popover.Button className={`${open ? "" : "text-opacity-80"} group px-3 py-1.5 border-neutral-300 hover:border-neutral-400 dark:border-neutral-700 rounded-full inline-flex items-center text-sm text-gray-700 dark:text-neutral-300 font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}>
               <BanknotesIcon className="w-5 h-5 opacity-80" />
               <span className="ml-2 select-none">Currency</span>
-              <ChevronDownIcon
-                className={`${open ? "-rotate-180" : "text-opacity-70"}
-                  ml-2 h-4 w-4  group-hover:text-opacity-80 transition ease-in-out duration-150`}
-                aria-hidden="true"
-              />
+              <ChevronDownIcon className={`${open ? "-rotate-180" : "text-opacity-70"} ml-2 h-4 w-4  group-hover:text-opacity-80 transition ease-in-out duration-150`} aria-hidden="true" />
             </Popover.Button>
             <Transition
               as={Fragment}
@@ -82,12 +50,7 @@ export default function CurrencyDropdown() {
                         key={index}
                         href={item.href}
                         onClick={() => close()}
-                        className={`flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50 ${
-                          item.active
-                            ? "bg-gray-100 dark:bg-neutral-700"
-                            : "opacity-80"
-                        }`}
-                      >
+                        className={`flex items-center p-2 -m-3 transition duration-150 ease-in-out rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50 ${item.active ? "bg-gray-100 dark:bg-neutral-700" : "opacity-80" }`}>
                         <item.icon className="w-[18px] h-[18px] " />
                         <p className="ml-2 text-sm font-medium ">{item.name}</p>
                       </a>

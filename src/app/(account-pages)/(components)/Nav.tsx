@@ -11,8 +11,7 @@ export const Nav = () => {
   const listNav: Route[] = [
     "/account",
     "/account-savelists",
-    "/account-password",
-    "/account-billing",
+    "/account-password"
   ];
 
   return (
@@ -21,15 +20,7 @@ export const Nav = () => {
         {listNav.map((item) => {
           const isActive = pathname === item;
           return (
-            <Link
-              key={item}
-              href={item}
-              className={`block py-5 md:py-8 border-b-2 flex-shrink-0 capitalize ${
-                isActive
-                  ? "border-primary-500 font-medium"
-                  : "border-transparent"
-              }`}
-            >
+            <Link key={item} href={item} className={`block py-5 md:py-8 border-b-2 flex-shrink-0 capitalize ${isActive ? "border-primary-500 font-medium" : "border-transparent" }`}>
               {item.replace("-", " ").replace("/", " ")}
             </Link>
           );

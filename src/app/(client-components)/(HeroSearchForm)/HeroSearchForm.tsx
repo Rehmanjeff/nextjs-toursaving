@@ -1,25 +1,23 @@
 "use client";
 
 import React, { FC, useState } from "react";
-import StaySearchForm from "./(stay-search-form)/StaySearchForm";
-import ExperiencesSearchForm from "./(experiences-search-form)/ExperiencesSearchForm";
+import ChaufferSearchForm from "./(car-search-form)/ChaufferSearchForm";
 import RentalCarSearchForm from "./(car-search-form)/RentalCarSearchForm";
-import FlightSearchForm from "./(flight-search-form)/FlightSearchForm";
 
-export type SearchTab = "Stays" | "Experiences" | "Cars" | "Flights";
+export type SearchTab = "Chauffer" | "Rental";
 
 export interface HeroSearchFormProps {
   className?: string;
   currentTab?: SearchTab;
-  currentPage?: "Stays" | "Experiences" | "Cars" | "Flights";
+  currentPage?: "Chauffer" | "Rental";
 }
 
 const HeroSearchForm: FC<HeroSearchFormProps> = ({
   className = "",
-  currentTab = "Stays",
+  currentTab = "Chauffer",
   currentPage,
 }) => {
-  const tabs: SearchTab[] = ["Stays", "Experiences", "Cars", "Flights"];
+  const tabs: SearchTab[] = ["Chauffer", "Rental"];
   const [tabActive, setTabActive] = useState<SearchTab>(currentTab);
 
   const renderTab = () => {
@@ -50,14 +48,10 @@ const HeroSearchForm: FC<HeroSearchFormProps> = ({
 
   const renderForm = () => {
     switch (tabActive) {
-      case "Stays":
-        return <StaySearchForm />;
-      case "Experiences":
-        return <ExperiencesSearchForm />;
-      case "Cars":
+      case "Chauffer":
+        return <ChaufferSearchForm />;
+      case "Rental":
         return <RentalCarSearchForm />;
-      case "Flights":
-        return <FlightSearchForm />;
 
       default:
         return null;
@@ -66,7 +60,7 @@ const HeroSearchForm: FC<HeroSearchFormProps> = ({
 
   return (
     <div
-      className={`nc-HeroSearchForm w-full max-w-6xl py-5 lg:py-0 ${className}`}
+      className={`nc-HeroSearchForm w-full py-5 lg:py-0 ${className}`}
     >
       {renderTab()}
       {renderForm()}
