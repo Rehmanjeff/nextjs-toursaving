@@ -1,4 +1,3 @@
-import { ListingGalleryImage } from "@/components/listing-image-gallery/utils/types";
 import carUtilities1 from "@/images/carUtilities/1.png";
 import carUtilities2 from "@/images/carUtilities/2.png";
 import carUtilities3 from "@/images/carUtilities/3.png";
@@ -57,12 +56,3 @@ export const Amenities_demos = [
   { name: "LED Daytime Running Lights (DRL)", icon: carUtilities7 },
   { name: "Blind-Spot Collision Warning (BCW)", icon: carUtilities8 },
 ];
-
-export const imageGallery: ListingGalleryImage[] = [...PHOTOS].map(
-  (item, index): ListingGalleryImage => {
-    return {
-      id: index,
-      url: item,
-    };
-  }
-);
