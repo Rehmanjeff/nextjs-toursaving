@@ -8,31 +8,55 @@ import { CalendarIcon } from "@heroicons/react/24/outline";
 import DatePickerCustomHeaderTwoMonth from "@/components/DatePickerCustomHeaderTwoMonth";
 import DatePickerCustomDay from "@/components/DatePickerCustomDay";
 import ClearDataButton from "./ClearDataButton";
+import TimePicker from '@/shared/TimePicker';
+import ButtonPrimary from "@/shared/ButtonPrimary";
 
-export interface DateInputProps {
+export interface DateTimeInputProps {
   className?: string;
   fieldClassName?: string;
-  hasButtonSubmit?: boolean;
+  placeHolder?: string;
+  date: Date | null;
+  time: string;
+  onDateTimeChange: (selectedDate: Date | null, selectedTime: string, inputIdentifier?: string) => void;
+  inputIdentifier?: string;
 }
 
-   const DateInput: FC<DateInputProps> = ({
-      className = "",
-      fieldClassName = "[ nc-hero-field-padding ]"
-   }) => {
+const DateTimeInput: FC<DateTimeInputProps> = ({
+  className = "",
+  fieldClassName = "[ nc-hero-field-padding ]",
+  placeHolder = "Date and time",
+  date,
+  time,
+  onDateTimeChange,
+  inputIdentifier,
+}) => {
+   const [startDate, setStartDate] = useState<Date | null>(date);
+   const [selectedTime, setSelectedTime] = useState(time);
 
-   const [startDate, setStartDate] = useState<Date | null>(
-      new Date("2023/05/01")
-   );
+   const handleTimeSelect = (time: string) => {
+      setSelectedTime(time);
+      onDateTimeChange(startDate, time, inputIdentifier);
+   };
+   const resetValue = () => {
+      setStartDate(date);
+      setSelectedTime(time);
+      onDateTimeChange(startDate, time, inputIdentifier);
+   };
 
-   const popoverRef = useRef<HTMLButtonElement>(null)
+   const popoverRef = useRef<HTMLButtonElement>(null);
 
    const onChangeDate = (dates: [Date | null]) => {
       const [start] = dates;
       setStartDate(start);
+      onDateTimeChange(start, selectedTime);
+   };
+
+   const handleSubmitButton = () => {
+
       if (popoverRef.current && popoverRef.current instanceof HTMLButtonElement) {
          popoverRef.current.click();
       }
-   };
+   }
 
    const renderInput = () => {
       return (
@@ -42,10 +66,10 @@ export interface DateInputProps {
          </div>
          <div className="flex-grow text-left">
             <span className="block xl:text-lg font-semibold">
-               {startDate?.toLocaleDateString("en-US", {month: "short", day: "2-digit"}) || "Choose date"}
+               {startDate?.toLocaleDateString("en-US", {month: "short", day: "2-digit"}) || "Choose date"} - {selectedTime ? selectedTime : ''}
             </span>
             <span className="block mt-1 text-sm text-neutral-400 leading-none font-light">
-               Pick up date
+               {placeHolder}
             </span>
          </div>
          </>
@@ -57,15 +81,10 @@ export interface DateInputProps {
          <Popover className={`FlightDateRangeInput relative flex ${className}`}>
          {({ open }) => (
             <>
-               <div className={`flex-1 z-10 flex items-center focus:outline-none ${open ? "nc-hero-field-focused" : ""}`}>
+               <div className={`flex-1 z-10 flex items-center focus:outline-none ${open ? "nc-hero-field-focused" : "" }`}>
                <Popover.Button ref={popoverRef} className={`flex-1 z-10 flex relative ${fieldClassName} items-center space-x-3 focus:outline-none `}>
                   {renderInput()}
-
-                  {startDate && open && (
-                     <ClearDataButton
-                     onClick={() => onChangeDate([null])}
-                     />
-                  )}
+                  {startDate && open && (<ClearDataButton onClick={resetValue} />)}
                </Popover.Button>
                </div>
 
@@ -95,6 +114,15 @@ export interface DateInputProps {
                            <DatePickerCustomDay dayOfMonth={day} date={date} />
                         )}
                      />
+                     <div className="flex flex-col">
+                        <div className="flex flex-col mt-5">
+                           <h2 className="text-sm lg:text-base font-medium my-5">Choose Time</h2>
+                           <TimePicker time={selectedTime} onTimeSelect={handleTimeSelect} />
+                        </div>
+                        <div className="ml-auto mt-5">
+                           <ButtonPrimary type="button" onClick={handleSubmitButton}>Done</ButtonPrimary>
+                        </div>
+                     </div>
                   </div>
                </Popover.Panel>
                </Transition>
@@ -105,4 +133,4 @@ export interface DateInputProps {
    );
 };
 
-export default DateInput;
+export default DateTimeInput;

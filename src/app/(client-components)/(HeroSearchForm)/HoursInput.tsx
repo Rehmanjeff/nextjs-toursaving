@@ -10,22 +10,33 @@ export interface HoursInputProps {
    fieldClassName?: string;
    className?: string;
    placeholder?: string;
-   desc: string
+   desc: string;
+   hours?: string;
+   onHoursChange: (selectedHours: string) => void;
 }
 
-const hoursData = [ {title: '1 Hour' , display: '1 Hour (30KM / 20MI)'}, {title: '2 Hours' , display: '2 Hours (60KM / 40MI)'}, {title: '3 Hours' , display: '3 Hours (90KM / 60MI)'}, {title: '4 Hours' , display: '4 Hours (120KM / 80MI)'}, {title: '5 Hours' , display: '5 Hours (150KM / 100MI)'}, {title: '6 Hours' , display: '6 Hours (180KM / 120MI)'}, {title: '7 Hours' , display: '7 Hours (210KM / 140MI)'}, {title: '8 Hours' , display: '8 Hours (240KM / 160MI)'}, {title: '9 Hours' , display: '9 Hours (270KM / 180MI)'}, {title: '10 Hours' , display: '10 Hours (300KM / 200MI)'}];
+const hoursData = [ {title: '1' , display: '1 Hour (30KM / 20MI)'}, {title: '2' , display: '2 Hours (60KM / 40MI)'}, {title: '3' , display: '3 Hours (90KM / 60MI)'}, {title: '4' , display: '4 Hours (120KM / 80MI)'}, {title: '5' , display: '5 Hours (150KM / 100MI)'}, {title: '6' , display: '6 Hours (180KM / 120MI)'}, {title: '7' , display: '7 Hours (210KM / 140MI)'}, {title: '8' , display: '8 Hours (240KM / 160MI)'}, {title: '9' , display: '9 Hours (270KM / 180MI)'}, {title: '10' , display: '10 Hours (300KM / 200MI)'}];
 
 const HoursInput: FC<HoursInputProps> = ({
    fieldClassName = "[ nc-hero-field-padding ]",
    className = "[ nc-flex-1 ]",
    placeholder = 'Hours',
-   desc = ''
+   desc = '',
+   hours = '',
+   onHoursChange
 }) => {
-   const [inputValue, setInputValue] = useState("");
+   const [inputValue, setInputValue] = useState(hours);
 
    const handleChangeData = (value: string) => {
 
       setInputValue(value);
+      onHoursChange(value);
+   };
+
+   const resetValue = () => {
+
+      setInputValue(hours);
+      onHoursChange(hours);
    };
 
    return (
@@ -45,13 +56,13 @@ const HoursInput: FC<HoursInputProps> = ({
                      </div>
                      <div className="flex-grow text-left">
                         <span className="block xl:text-lg font-semibold">
-                           {inputValue ? inputValue : placeholder}
+                           {inputValue ? inputValue + ' Hours' : placeholder}
                         </span>
                         <span className="block mt-1 text-sm text-neutral-400 leading-none font-light">
                            {desc}
                         </span>
                         {inputValue && open && (
-                           <ClearDataButton onClick={() => {setInputValue("")}} />
+                           <ClearDataButton onClick={resetValue} />
                         )}
                      </div>
                   </Popover.Button>

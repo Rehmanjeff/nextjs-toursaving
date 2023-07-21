@@ -3,22 +3,26 @@
 import React, { FC } from "react";
 import RentalCarSearchForm from "./(car-search-form)/RentalCarSearchForm";
 import ChaufferSearchForm from "./(car-search-form)/ChaufferSearchForm";
+import { UserSearchType } from "../type";
 
 export interface HeroSearchFormSmallProps {
   className?: string;
+  search: UserSearchType
 }
 
 const HeroSearchFormSmall: FC<HeroSearchFormSmallProps> = ({
-  className = ""
+  className = "",
+  search = null
 }) => {
 
-  return (
-    <div className={`nc-HeroSearchFormSmall ${className}`} data-nc-id="HeroSearchFormSmall">
-      <div className="mt-2">
-         <RentalCarSearchForm />
+   return (
+      <div className={`nc-HeroSearchFormSmall ${className}`} data-nc-id="HeroSearchFormSmall">
+         <div className="mt-2">
+            {(search && search.type == 'rental' && <RentalCarSearchForm userSearch={search.rental} />)}
+            {(search && search.type == 'chauffer' && <ChaufferSearchForm userSearch={search.chauffer} />)}
+         </div>
       </div>
-    </div>
-  );
+   );
 };
 
 export default HeroSearchFormSmall;
