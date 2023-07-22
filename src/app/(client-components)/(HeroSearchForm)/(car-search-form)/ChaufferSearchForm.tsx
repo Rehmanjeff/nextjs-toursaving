@@ -8,8 +8,9 @@ import HoursInput from "../HoursInput";
 import useNextRouter from '@/hooks/useNextRouter';
 import { PathName } from "@/routers/types";
 import { ChaufferServiceType, ChaufferType } from "@/app/(client-components)/type";
-import { Location } from "@/app/(client-components)/type";
+import { Location, SearchParams } from "@/app/(client-components)/type";
 import { DEMO_LOCATIONS } from "@/data/locations";
+import { encodeIntoQuery } from "@/utils/userSearch";
 
 export interface ChaufferSearchFormProps {}
 
@@ -37,7 +38,8 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({}) => {
 
       setChaufferSearch((prevSearch) => ({
          ...prevSearch,
-         type: value
+         type: value,
+         destination: value == 'hours' ? null : prevSearch.destination
       }));
    }
    const handleLocationInputChange = (location: Location | null, inputIdentifier: string) => {
@@ -91,8 +93,9 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({}) => {
       }
 
       if(!hasError){
-         const destinationHours = chaufferSearch.type == 'destination' ? '&destination=' + chaufferSearch.destination?.name + '&destination-id=' + chaufferSearch.destination?.id : '&hours=' + chaufferSearch.hours;
-         redirectTo('/search-results?drive=chauffer&type=' + chaufferSearch.type + '&pick-up=' + chaufferSearch.pickUp?.name + '&pick-up-id=' + chaufferSearch.pickUp?.id + destinationHours + '&start-date=' + chaufferSearch.startDate + '&start-time=' + chaufferSearch.startTime as PathName);
+
+         const searchQuery = encodeIntoQuery({'chauffer' : chaufferSearch} as SearchParams);
+         redirectTo('/search-results?' + searchQuery as PathName);
       }
    }
 

@@ -13,7 +13,7 @@ const ListingCarPage: FC<ListingCarPageProps> = () => {
    <div className={`nc-ListingCarMapPage relative `}>
       <BgGlassmorphism />
       <div className="container pt-10 pb-24 lg:pt-16 lg:pb-28">
-         <SectionHeroArchivePage rightImage={HeroRightImage} currentTab="Rental" />
+         <SectionHeroArchivePage rightImage={HeroRightImage} currentTab="Chauffer" />
       </div>
       <div className="container overflow-hidden">
          <div className="relative py-16">

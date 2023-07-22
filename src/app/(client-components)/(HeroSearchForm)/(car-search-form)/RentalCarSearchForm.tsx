@@ -8,7 +8,8 @@ import { PathName } from "@/routers/types";
 import { DEMO_LOCATIONS } from "@/data/locations";
 import IconButton from "@/shared/IconButton";
 import useNextRouter from '@/hooks/useNextRouter';
-import { RentalServiceType, RentalType } from "@/app/(client-components)/type";
+import { RentalServiceType, RentalType, SearchParams } from "@/app/(client-components)/type";
+import { encodeIntoQuery } from "@/utils/userSearch";
 
 export interface RentalCarSearchFormProps {}
 
@@ -107,7 +108,8 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
       }
 
       if(!hasError){
-         redirectTo('/search-results?drive=rental&type=' + rentalSearch.type + '&pick-up=' + rentalSearch.pickUp?.name + '&pick-up-id=' + rentalSearch.pickUp?.id + '&start-date=' + rentalSearch.startDate + '&start-time=' + rentalSearch.startTime + '&end-date=' + rentalSearch.endDate + '&end-time=' + rentalSearch.endTime as PathName);
+         const searchQuery = encodeIntoQuery({'rental' : rentalSearch} as SearchParams);
+         redirectTo('/search-results?' + searchQuery as PathName);
       }
    }
 

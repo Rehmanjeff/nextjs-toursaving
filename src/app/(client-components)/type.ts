@@ -44,8 +44,13 @@ export interface ChaufferServiceType {
    startTime: string | null;
 }
 
-export interface UserSearchType {
-   type: DriveType;
-   rental: RentalServiceType;
-   chauffer: ChaufferServiceType;
+export interface UserSearch {
+   type: DriveType | null;
+   chauffer?: ChaufferServiceType | null;
+   rental?: RentalServiceType | null;
+}
+
+export interface SearchParams {
+   chauffer?: ChaufferServiceType;
+   rental?: RentalServiceType;
 }
