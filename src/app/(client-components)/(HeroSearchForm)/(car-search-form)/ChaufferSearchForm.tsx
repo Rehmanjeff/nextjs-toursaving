@@ -122,7 +122,7 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({}) => {
             {chaufferSearch.type == 'hours' && <><HoursInput hours={defaultHours.toString()} onHoursChange={handleHoursChange} desc="Booking hours" className="flex-1" /><div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div></>}
             <DateTimeInput date={defaultDate} time={defaultTime} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "start-date-time")} placeHolder="Pickup date and time" className="flex-1" />
             <div className="pr-2 xl:pr-4">
-               <IconButton onClick={handleSearch} />
+               <IconButton type="button" className="text-white" onClick={handleSearch} />
             </div>
          </div>
       </form>

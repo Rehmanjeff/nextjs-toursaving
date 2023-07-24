@@ -128,7 +128,7 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
             <DateTimeInput date={defaultPickupDate} time={defaultPickupTime} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "start-date-time")} placeHolder="Pickup date and time" className="flex-1" />
             <DateTimeInput date={defaultDropoffDate} time={defaultDropoffTime} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "end-date-time")} placeHolder="Dropoff date and time" className="flex-1" />
             <div className="pr-2 xl:pr-4">
-               <IconButton onClick={handleSearch} />
+               <IconButton type="button" className="text-white" onClick={handleSearch} />
             </div>
          </div>
       </form>

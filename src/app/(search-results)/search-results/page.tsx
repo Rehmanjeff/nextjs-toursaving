@@ -8,7 +8,8 @@ import SectionSliderNewCategories from "@/components/SectionSliderNewCategories"
 import SectionSubscribe2 from "@/components/SectionSubscribe2";
 import { UserSearch } from "@/app/(client-components)/type";
 import { decodeFromQuery } from "@/utils/userSearch";
-import {usePathname, useSearchParams} from 'next/navigation'
+import {usePathname, useSearchParams} from 'next/navigation';
+import Image from "next/image";
 
 export interface SearchResultssProps {}
 
@@ -41,11 +42,11 @@ const SearchResults: FC<SearchResultssProps> = () => {
 
    return (
       <div className={`nc-ListingCarMapPage relative mt-10`}>
-         <div className="container ">
+         <div className="container">
             <div className="hidden lg:block lg:pb-16">
                <HeroSearchFormSmall search={search} />
             </div>
-            {isLoading && (<>Loading...</>)}
+            {isLoading && (<><Image className="mx-auto my-16" src="/loading.gif" alt="car" width={150} height={150} /></>)}
             {!isLoading && (<SectionGridFilterCard className="pb-24 lg:pb-28" />)}
          </div>
          <div className="container overflow-hidden">

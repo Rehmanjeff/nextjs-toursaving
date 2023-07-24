@@ -7,7 +7,6 @@ import "@/styles/index.scss";
 import "rc-slider/assets/index.css";
 import Footer from "@/components/Footer";
 import FooterNav from "@/components/FooterNav";
-import { ReduxProvider } from "@/redux/provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,9 +24,7 @@ export default function RootLayout({
   return (
    <html lang="en" className={poppins.className}>
       <body className="bg-white text-base dark:bg-neutral-900 text-neutral-900 dark:text-neutral-200">
-         <ReduxProvider>
          {children}
-         </ReduxProvider>
       </body>
    </html>
   );

@@ -122,7 +122,7 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({
                <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
                <DateTimeInput date={rentalSearch.endDate ? new Date(rentalSearch.endDate * 1) : null} time={rentalSearch.endTime ? rentalSearch.endTime : ''} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "end-date-time")} placeHolder="Dropoff date and time" className="flex-1" />
                <div className="pr-1">
-                  <IconButton onClick={handleSearch} />
+                  <IconButton type="button" className="text-white" onClick={handleSearch} />
                </div>
             </div>
          </form>

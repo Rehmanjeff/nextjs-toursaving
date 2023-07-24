@@ -7,7 +7,7 @@ import { UserSearch } from "../type";
 
 export interface HeroSearchFormSmallProps {
   className?: string;
-  search: UserSearch
+  search?: UserSearch
 }
 
 const HeroSearchFormSmall: FC<HeroSearchFormSmallProps> = ({

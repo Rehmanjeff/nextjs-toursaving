@@ -125,7 +125,7 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({
                   <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
                   <DateTimeInput date={chaufferSearch.startDate ? new Date(chaufferSearch.startDate * 1) : null} time={chaufferSearch.startTime ? chaufferSearch.startTime : ''} onDateTimeChange={handleDateTimeChange} placeHolder="Pickup date and time" className="flex-1" />
                   <div className="pr-1">
-                     <IconButton onClick={handleSearch} />
+                     <IconButton type="button" className="text-white" onClick={handleSearch} />
                   </div>
             </div>
          </form>
