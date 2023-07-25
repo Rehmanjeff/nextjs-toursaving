@@ -15,11 +15,12 @@ import LikeSaveBtns from "@/components/LikeSaveBtns";
 import HeroSearchFormSmall from "@/app/(client-components)/(HeroSearchFormSmall)/HeroSearchFormSmall";
 import { PathName } from "@/routers/types";
 
-export interface ListingCarDetailPageProps {}
+export interface ListingCarDetailPageProps {params: { carId: string }}
 
-const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({}) => {
+const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
 
    const [editSearch, setEditSearch] = useState<boolean>(false);
+   const { carId } = params;
    
    const toggleEditSearch = () => {
 
