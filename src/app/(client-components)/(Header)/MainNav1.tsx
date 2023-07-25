@@ -6,6 +6,7 @@ import ButtonPrimary from "@/shared/ButtonPrimary";
 import MenuBar from "@/shared/MenuBar";
 import SwitchDarkMode from "@/shared/SwitchDarkMode";
 import HeroSearchForm2MobileFactory from "../(HeroSearchForm2Mobile)/HeroSearchForm2MobileFactory";
+import { PathName } from "@/routers/types";
 
 export interface MainNav1Props {
   className?: string;
@@ -31,7 +32,7 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
             <SwitchDarkMode />
             <SearchDropdown className="flex items-center" />
             <div className="px-1" />
-            <ButtonPrimary className="self-center" href="/login">
+            <ButtonPrimary className="self-center" href={"login" as PathName}>
               Sign up
             </ButtonPrimary>
           </div>

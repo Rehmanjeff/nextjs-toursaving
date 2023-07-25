@@ -6,6 +6,7 @@ import Input from "@/shared/Input";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import Image from "next/image";
 import Link from "next/link";
+import { PathName } from "@/routers/types";
 
 export interface PageLoginProps {}
 
@@ -75,7 +76,7 @@ const PageLogin: FC<PageLoginProps> = ({}) => {
             <label className="block">
               <span className="flex justify-between items-center text-neutral-800 dark:text-neutral-200">
                 Password
-                <Link href="/login" className="text-sm underline font-medium">
+                <Link href={"login" as PathName} className="text-sm underline font-medium">
                   Forgot password?
                 </Link>
               </span>
@@ -87,7 +88,7 @@ const PageLogin: FC<PageLoginProps> = ({}) => {
           {/* ==== */}
           <span className="block text-center text-neutral-700 dark:text-neutral-300">
             New user? {` `}
-            <Link href="/signup" className="font-semibold underline">
+            <Link href={"signup" as PathName} className="font-semibold underline">
               Create an account
             </Link>
           </span>

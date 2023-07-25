@@ -11,6 +11,7 @@ import StartRating from "@/components/StartRating";
 import NcModal from "@/shared/NcModal";
 import Image from "next/image";
 import Select from "@/shared/Select";
+import { PathName } from "@/routers/types";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -162,7 +163,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             <div className="flex space-x-5  ">
                <div className="flex-1 space-y-1">
                   <Label>Country of residence</Label>
-                  <Select>
+                  <Select className="w-full">
                      <option value="+973">Bahrain</option>
                      <option value="+971">UAE</option>
                      <option value="+966">Saudi Arabia</option>
@@ -226,7 +227,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
               </Tab.Panels>
             </Tab.Group>
             <div className="pt-8">
-              <ButtonPrimary href="/pay-done">Confirm and pay</ButtonPrimary>
+              <ButtonPrimary href={"pay-done" as PathName}>Confirm and pay</ButtonPrimary>
             </div>
           </div>
         </div>

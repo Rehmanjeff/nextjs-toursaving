@@ -1,6 +1,6 @@
 "use client";
 
-import { Route } from "@/routers/types";
+import { PathName, Route } from "@/routers/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -9,9 +9,9 @@ export const Nav = () => {
   const pathname = usePathname();
 
   const listNav: Route[] = [
-    "/account",
-    "/account-savelists",
-    "/account-password"
+    "/account" as PathName,
+    "/account-savelists" as PathName,
+    "/account-password" as PathName
   ];
 
   return (

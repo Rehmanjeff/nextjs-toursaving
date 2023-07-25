@@ -1,6 +1,7 @@
 import Image, { StaticImageData } from "next/image";
 import React, { FC, ReactNode } from "react";
 import ButtonPrimary from "@/shared/ButtonPrimary";
+import { PathName } from "@/routers/types";
 
 export interface SectionHeroProps {
   className?: string;
@@ -27,7 +28,7 @@ const SectionHero: FC<SectionHeroProps> = ({
           <span className="block text-base xl:text-lg text-neutral-6000 dark:text-neutral-400">
             {subHeading}
           </span>
-          {!!btnText && <ButtonPrimary href="/login">{btnText}</ButtonPrimary>}
+          {!!btnText && <ButtonPrimary href={"login" as PathName}>{btnText}</ButtonPrimary>}
         </div>
         <div className="flex-grow">
           <Image className="w-full" src={rightImg} alt="" />

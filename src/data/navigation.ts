@@ -27,10 +27,10 @@ const demoChildMenus: NavItemType[] = [
 const otherPageChildMenus: NavItemType[] = [
   { id: ncNanoId(), href: "/", name: "Blog page" },
   { id: ncNanoId(), href: "/" as Route, name: "Blog single" },
-  { id: ncNanoId(), href: "/about", name: "About" },
-  { id: ncNanoId(), href: "/contact", name: "Contact us" },
-  { id: ncNanoId(), href: "/login", name: "Login" },
-  { id: ncNanoId(), href: "/signup", name: "Signup" },
+  { id: ncNanoId(), href: "/", name: "About" },
+  { id: ncNanoId(), href: "/", name: "Contact us" },
+  { id: ncNanoId(), href: "/", name: "Login" },
+  { id: ncNanoId(), href: "/", name: "Signup" },
 ];
 
 const templatesChildrenMenus: NavItemType[] = [
@@ -93,8 +93,8 @@ const templatesChildrenMenus: NavItemType[] = [
     ],
   },
   //
-  { id: ncNanoId(), href: "/checkout", name: "Checkout" },
-  { id: ncNanoId(), href: "/pay-done", name: "Pay done" },
+  { id: ncNanoId(), href: "/", name: "Checkout" },
+  { id: ncNanoId(), href: "/", name: "Pay done" },
   //
   { id: ncNanoId(), href: "/", name: "Author page" },
   { id: ncNanoId(), href: "/account", name: "Account page" },
@@ -171,7 +171,7 @@ export const NAVIGATION_DEMO: NavItemType[] = [
         children: [
           { id: ncNanoId(), href: "/", name: "Cars page" },
           { id: ncNanoId(), href: "/", name: "Cars page (map)" },
-          { id: ncNanoId(), href: "/listing-car-detail", name: "Car Detail" },
+          { id: ncNanoId(), href: "/", name: "Car Detail" },
         ],
       },
 

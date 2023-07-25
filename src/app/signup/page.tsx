@@ -6,6 +6,7 @@ import Input from "@/shared/Input";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import Image from "next/image";
 import Link from "next/link";
+import { PathName } from "@/routers/types";
 
 export interface PageSignUpProps {}
 
@@ -84,7 +85,7 @@ const PageSignUp: FC<PageSignUpProps> = ({}) => {
           {/* ==== */}
           <span className="block text-center text-neutral-700 dark:text-neutral-300">
             Already have an account? {` `}
-            <Link href="/login" className="font-semibold underline">
+            <Link href={"login" as PathName} className="font-semibold underline">
               Sign in
             </Link>
           </span>
