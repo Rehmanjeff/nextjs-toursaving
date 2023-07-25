@@ -24,10 +24,14 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({
    const locations : Location[] = DEMO_LOCATIONS;
    const [chaufferSearch, setChaufferSearch] = useState<ChaufferServiceType>(userSearch);
    const { redirectTo } = useNextRouter();
-   
+   const defaultHours = 4;
+
    useEffect(() => {
       
-      setChaufferSearch(userSearch);
+      setChaufferSearch(() => ({
+         ...userSearch,
+         hours: userSearch.hours ? userSearch.hours : defaultHours
+      }));
    }, [userSearch]);
    const handleBookingType = (value: ChaufferType) => {
 
