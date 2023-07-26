@@ -1,7 +1,7 @@
 "use client";
 
 import { ClockIcon, MapPinIcon } from "@heroicons/react/24/outline";
-import React, { useState, useRef, useEffect, FC } from "react";
+import React, { useState, useRef, useEffect, FC, ChangeEvent } from "react";
 import ClearDataButton from "./ClearDataButton";
 import { Location } from "@/app/(client-components)/type";
 
@@ -34,6 +34,7 @@ const LocationInput: FC<LocationInputProps> = ({
    const inputRef = useRef<HTMLInputElement>(null);
 
    const [value, setValue] = useState(location ? location.name : '');
+   const [locationResults, setLocationResults] = useState<Location[] | null>(null);
    const [showPopover, setShowPopover] = useState(autoFocus);
 
    const resetValue = () => {
@@ -47,14 +48,19 @@ const LocationInput: FC<LocationInputProps> = ({
    }, [autoFocus]);
 
    useEffect(() => {
+
+      if(showPopover == false){
+         setLocationResults(null);
+      }
+
       if (eventClickOutsideDiv) {
          document.removeEventListener("click", eventClickOutsideDiv);
       }
       showPopover && document.addEventListener("click", eventClickOutsideDiv);
+
       return () => {
          document.removeEventListener("click", eventClickOutsideDiv);
       };
-      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [showPopover]);
 
    useEffect(() => {
@@ -65,11 +71,10 @@ const LocationInput: FC<LocationInputProps> = ({
 
    const eventClickOutsideDiv = (event: MouseEvent) => {
       if (!containerRef.current) return;
-      // CLICK IN_SIDE
       if (!showPopover || containerRef.current.contains(event.target as Node)) {
          return;
       }
-      // CLICK OUT_SIDE
+      
       setShowPopover(false);
    };
 
@@ -79,10 +84,30 @@ const LocationInput: FC<LocationInputProps> = ({
       onInputChange(item, inputIdentifier);
    };
 
+   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+
+      const query = e.target.value;
+      if(query != ''){
+
+         fetch(`/api/locations/${encodeURIComponent(query)}`)
+            .then((response) => response.json())
+            .then((data) => {
+               setLocationResults(data.data.length ? data.data : null);
+               setShowPopover(true);
+            })
+            .catch((error) => console.error('Error fetching data:', error));
+      }else{
+
+         setShowPopover(false);
+      }
+
+      setValue(query);
+   }
+
    const renderSearchValue = () => {
       return (
          <>
-         {locations.map((item) => (
+         {locationResults && locationResults.map((item) => (
             <span onClick={() => handleSelectLocation(item)} key={item.id} className="flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer">
                <span className="block text-neutral-400">
                   <ClockIcon className="h-4 w-4 sm:h-6 sm:w-6" />
@@ -101,7 +126,7 @@ const LocationInput: FC<LocationInputProps> = ({
                <MapPinIcon className="w-5 h-5 lg:w-7 lg:h-7" />
             </div>
             <div className="flex-grow">
-               <input className={`block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none focus:placeholder-neutral-300 xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate`} placeholder={placeHolder} value={value} autoFocus={showPopover} onChange={(e) => { setValue(e.currentTarget.value); }} ref={inputRef} />
+               <input className={`block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none focus:placeholder-neutral-300 xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate`} placeholder={placeHolder} value={value} autoFocus={showPopover} onChange={handleInputChange} ref={inputRef} />
                <span className="block mt-0.5 text-sm text-neutral-400 font-light ">
                   {error !== null && <span className="text-theme-red font-medium">{error}</span>}
                   {error === null && <span className="line-clamp-1">{!!value ? placeHolder : desc}</span>}
@@ -112,7 +137,7 @@ const LocationInput: FC<LocationInputProps> = ({
 
          {showPopover && (<div className={`h-8 absolute self-center top-1/2 -translate-y-1/2 z-0 bg-white dark:bg-neutral-800 ${divHideVerticalLineClass}`}></div>)}
 
-         {showPopover && (
+         {showPopover && locationResults && locationResults!.length > 0 && (
          <div className="absolute left-0 z-40 w-full min-w-[300px] sm:min-w-[500px] bg-white dark:bg-neutral-800 top-full mt-3 py-3 sm:py-6 rounded-3xl shadow-xl max-h-96 overflow-y-auto">
             {renderSearchValue()}
          </div>

@@ -3,7 +3,8 @@
 
 node_modules
 .next
-.env.local.example
+.env.example
+.env*.local
 package-lock.json
 
 # Editor directories and files
