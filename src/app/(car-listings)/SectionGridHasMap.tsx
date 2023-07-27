@@ -2,7 +2,6 @@
 
 import React, { FC, useState } from "react";
 import GoogleMapReact from "google-map-react";
-import { DEMO_CAR_LISTINGS } from "@/data/listings";
 import ButtonClose from "@/shared/ButtonClose";
 import Checkbox from "@/shared/Checkbox";
 import Pagination from "@/shared/Pagination";
@@ -10,14 +9,66 @@ import TabFilters from "./TabFilters";
 import Heading2 from "@/shared/Heading2";
 import CarCardH from "@/components/CarCardH";
 import AnyReactComponent from "@/components/AnyReactComponent/AnyReactComponent";
-
-const DEMO_CARS = DEMO_CAR_LISTINGS.filter((_, i) => i < 12);
+import { CarDataType } from "@/data/types";
+import { PathName } from "@/routers/types";
 
 export interface SectionGridHasMapProps {}
 
 const SectionGridHasMap: FC<SectionGridHasMapProps> = () => {
   const [currentHoverID, setCurrentHoverID] = useState<string | number>(-1);
   const [showFullMapFixed, setShowFullMapFixed] = useState(false);
+  const cars : CarDataType[] = [
+   {
+     "id": "9824dd51-14bc-4a05-ba7d-1ca3c3c08bd7",
+     "date": "May 20, 2021",
+     "href": "/cars/123456789" as PathName,
+     "title": "KONA Electric",
+     "featuredImage": "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
+     "galleryImgs": [
+       "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
+       "",
+       "",
+       ""
+     ],
+     "commentCount": 17,
+     "viewCount": 97,
+     "like": true,
+     "address": "8953 Golf Course Terrace",
+     "reviewStart": 5.0,
+     "reviewCount": 126,
+     "price": "$124",
+     "gearshift": "Auto gearbox",
+     "seats": 4,
+     "saleOff": null,
+     "isAds": null,
+     "map": { "lat": 55.2094559, "lng": 61.5594641 }
+   },
+   {
+     "id": "12a181b6-114c-45fa-a0cf-f4285bc7d952",
+     "date": "May 20, 2021",
+     "href": "/cars/123456789" as PathName,
+     "title": "KONA Electric",
+     "featuredImage": "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
+     "galleryImgs": [
+       "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
+       "",
+       "",
+       ""
+     ],
+     "commentCount": 40,
+     "viewCount": 902,
+     "like": true,
+     "address": "2606 Straubel Crossing",
+     "reviewStart": 4.6,
+     "reviewCount": 217,
+     "price": "$382",
+     "gearshift": "Auto gearbox",
+     "seats": 4,
+     "saleOff": null,
+     "isAds": null,
+     "map": { "lat": 55.1972153, "lng": 61.4407266 }
+   }
+];
 
   return (
     <div>
@@ -38,13 +89,13 @@ const SectionGridHasMap: FC<SectionGridHasMapProps> = () => {
             <TabFilters />
           </div>
           <div className="grid grid-cols-1 gap-8">
-            {DEMO_CARS.map((item) => (
+            {cars.map((item) => (
               <div
                 key={item.id}
                 onMouseEnter={() => setCurrentHoverID((_) => item.id)}
                 onMouseLeave={() => setCurrentHoverID((_) => -1)}
               >
-                <CarCardH data={item} />
+                <CarCardH car={item} />
               </div>
             ))}
           </div>
@@ -86,13 +137,13 @@ const SectionGridHasMap: FC<SectionGridHasMapProps> = () => {
 
             <GoogleMapReact
               bootstrapURLKeys={{
-                key: "AIzaSyAGVJfZMAKYfZ71nzL_v5i3LjTTWnCYwTY",
+                key: process.env.NEXT_PUBLIC_GOOGLE_API_KEY ? process.env.NEXT_PUBLIC_GOOGLE_API_KEY : '',
               }}
               yesIWantToUseGoogleMapApiInternals
               defaultZoom={12}
-              defaultCenter={DEMO_CARS[0].map}
+              defaultCenter={cars[0].map}
             >
-              {DEMO_CARS.map((item) => (
+              {cars.map((item) => (
                 <AnyReactComponent
                   isSelected={currentHoverID === item.id}
                   key={item.id}

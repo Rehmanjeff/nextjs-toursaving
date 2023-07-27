@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import { DEMO_CAR_LISTINGS } from "@/data/listings";
 import { CarDataType } from "@/data/types";
 import StartRating from "@/components/StartRating";
 import BtnLikeIcon from "@/components/BtnLikeIcon";
@@ -11,25 +10,10 @@ import Link from "next/link";
 
 export interface CarCardHProps {
   className?: string;
-  data?: CarDataType;
+  car: CarDataType
 }
 
-const DEMO_DATA: CarDataType = DEMO_CAR_LISTINGS[0];
-
-const CarCardH: FC<CarCardHProps> = ({ className = "", data = DEMO_DATA }) => {
-  const {
-    address,
-    title,
-    href,
-    like,
-    saleOff,
-    isAds,
-    price,
-    reviewStart,
-    reviewCount,
-    author,
-    featuredImage,
-  } = data;
+const CarCardH: FC<CarCardHProps> = ({ className = "", car }) => {
 
   const renderSliderGallery = () => {
     return (
@@ -38,12 +22,12 @@ const CarCardH: FC<CarCardHProps> = ({ className = "", data = DEMO_DATA }) => {
           <Image
             alt=""
             className="w-full"
-            src={featuredImage}
+            src={car.featuredImage}
             sizes="(max-width: 640px) 100vw, 300px"
           />
         </div>
-        <BtnLikeIcon isLiked={like} className="absolute right-3 top-3" />
-        {saleOff && <SaleOffBadge className="absolute left-3 top-3" />}
+        <BtnLikeIcon isLiked={car.like} className="absolute right-3 top-3" />
+        {car.saleOff && <SaleOffBadge className="absolute left-3 top-3" />}
       </div>
     );
   };
@@ -53,19 +37,19 @@ const CarCardH: FC<CarCardHProps> = ({ className = "", data = DEMO_DATA }) => {
       <div className="flex-grow p-3 sm:p-5 flex flex-col">
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            {isAds && <Badge name="ADS" color="green" />}
+            {car.isAds && <Badge name="ADS" color="green" />}
             <h2 className="text-xl font-semibold capitalize">
-              <span className="line-clamp-1">{title}</span>
+              <span className="line-clamp-1">{car.title}</span>
             </h2>
           </div>
           <div className="flex items-center space-x-4 text-sm text-neutral-500 dark:text-neutral-400">
-            <StartRating reviewCount={reviewCount} point={reviewStart} />
+            <StartRating reviewCount={car.reviewCount} point={car.reviewStart} />
             <span>· </span>
             <div className="flex items-center">
               <span className="hidden sm:inline-block  text-base">
                 <i className="las la-map-marked"></i>
               </span>
-              <span className="sm:ml-2 line-clamp-1"> {address}</span>
+              <span className="sm:ml-2 line-clamp-1"> {car.address}</span>
             </div>
           </div>
         </div>
@@ -105,15 +89,8 @@ const CarCardH: FC<CarCardHProps> = ({ className = "", data = DEMO_DATA }) => {
 
         <div className="w-14 border-b border-neutral-200/80 dark:border-neutral-700 my-4"></div>
         <div className="flex justify-between items-end">
-          <div className="flex items-center space-x-3 text-sm text-neutral-700  dark:text-neutral-300">
-            <Avatar imgUrl={author.avatar} userName={author.displayName} />
-            <span className="hidden sm:inline-block">
-              <span className="hidden sm:inline">Car owner </span>{" "}
-              {author.displayName}
-            </span>
-          </div>
           <span className="text-lg font-semibold text-secondary-700">
-            {price}
+            {car.price}
             {` `}
             <span className="text-sm text-neutral-500 dark:text-neutral-400 font-normal">
               /day
@@ -125,10 +102,8 @@ const CarCardH: FC<CarCardHProps> = ({ className = "", data = DEMO_DATA }) => {
   };
 
   return (
-    <div
-      className={`nc-CarCardH group relative bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-700 rounded-2xl overflow-hidden ${className}`}
-    >
-      <Link href={href} className="flex flex-col md:flex-row">
+    <div className={`nc-CarCardH group relative bg-white dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-700 rounded-2xl overflow-hidden ${className}`}>
+      <Link href={car.href} className="flex flex-col md:flex-row">
         {renderSliderGallery()}
         {renderContent()}
       </Link>

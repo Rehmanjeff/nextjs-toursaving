@@ -47,7 +47,7 @@ const AnyReactComponent: FC<AnyReactComponentProps> = ({
         leaveTo="opacity-0"
       >
         <div className="absolute z-50 bottom-full pb-3 -left-12 w-[260px] aspect-w-1">
-          {car && <CarCard size="small" data={car} className="shadow-2xl " />}
+          {car && <CarCard size="small" car={car} className="shadow-2xl " />}
         </div>
       </Transition>
     </div>
