@@ -118,7 +118,6 @@ export interface ExperiencesDataType {
 //
 export interface CarDataType {
   id: string | number;
-  author: AuthorType;
   date: string;
   href: Route<string>;
   title: string;
@@ -131,7 +130,6 @@ export interface CarDataType {
   like: boolean;
   galleryImgs: (StaticImageData | string)[];
   price: string;
-  listingCategory: TaxonomyType;
   seats: number;
   gearshift: string;
   saleOff?: string | null;

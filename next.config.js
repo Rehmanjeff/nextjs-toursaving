@@ -21,6 +21,12 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "shop.vinfastauto.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "a0.muscache.com",
         port: "",
         pathname: "/**",

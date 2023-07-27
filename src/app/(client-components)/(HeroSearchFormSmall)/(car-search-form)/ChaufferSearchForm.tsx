@@ -1,12 +1,11 @@
 "use client";
 
 import React, { FC, useState, useEffect } from "react";
-import LocationInput from "../LocationInput";
+import LocationInput from "@/app/(client-components)/(HeroSearchForm)/LocationInput";
 import HoursInput from "../HoursInput";
 import DateTimeInput from "../DateTimeInput";
 import IconButton from "@/shared/IconButton";
 import { ChaufferServiceType, ChaufferType, Location, SearchParams } from "@/app/(client-components)/type";
-import { DEMO_LOCATIONS } from "@/data/locations";
 import { encodeIntoQuery } from "@/utils/userSearch";
 import { PathName } from "@/routers/types";
 import useNextRouter from "@/hooks/useNextRouter";
@@ -21,7 +20,6 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({
 
    const [pickUpError, setPickUpError] = useState<string | null>(null);
    const [destinationError, setDestinationError] = useState<string | null>(null);
-   const locations : Location[] = DEMO_LOCATIONS;
    const [chaufferSearch, setChaufferSearch] = useState<ChaufferServiceType>(userSearch);
    const { redirectTo } = useNextRouter();
    const defaultHours = 4;
@@ -113,11 +111,11 @@ const ChaufferSearchForm: FC<ChaufferSearchFormProps> = ({
          <form className="w-full relative ">
             {renderRadioBtn()}
             <div className="flex flex-row items-center w-full rounded-full border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
-                  <LocationInput error={pickUpError} onInputChange={(location) => handleLocationInputChange(location, "pickUp")} location={chaufferSearch.pickUp !== null ? chaufferSearch.pickUp : null} locations={locations} placeHolder="City or Airport" desc="Pick up location" className="flex-1" />
+                  <LocationInput error={pickUpError} onInputChange={(location) => handleLocationInputChange(location, "pickUp")} location={chaufferSearch.pickUp !== null ? chaufferSearch.pickUp : null} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size="small" />
                   {chaufferSearch.type === "destination" && (
                      <>
                      <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
-                     <LocationInput error={destinationError} onInputChange={(location) => handleLocationInputChange(location, "destination")} location={chaufferSearch.destination !== null ? chaufferSearch.destination : null} locations={locations} placeHolder="City or Airport" desc="Drop off location" className="flex-1" divHideVerticalLineClass="-inset-x-0.5" />
+                     <LocationInput error={destinationError} onInputChange={(location) => handleLocationInputChange(location, "destination")} location={chaufferSearch.destination !== null ? chaufferSearch.destination : null} placeHolder="City or Airport" desc="Drop off location" className="flex-1" size="small" divHideVerticalLineClass="-inset-x-0.5" />
                      </>
                   )}
                   {chaufferSearch.type === "hours" && (

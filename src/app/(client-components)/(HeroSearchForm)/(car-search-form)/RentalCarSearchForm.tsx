@@ -5,7 +5,6 @@ import LocationInput from "../LocationInput";
 import DateTimeInput from "../DateTimeInput";
 import { Location } from "@/app/(client-components)/type";
 import { PathName } from "@/routers/types";
-import { DEMO_LOCATIONS } from "@/data/locations";
 import IconButton from "@/shared/IconButton";
 import useNextRouter from '@/hooks/useNextRouter';
 import { RentalServiceType, RentalType, SearchParams } from "@/app/(client-components)/type";
@@ -15,7 +14,6 @@ export interface RentalCarSearchFormProps {}
 
 const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
    const { redirectTo } = useNextRouter();
-   const locations : Location[] = DEMO_LOCATIONS;
 
    const [pickupError, setPickupError] = useState<string | null>(null);
    const [dropoffError, setDropoffError] = useState<string | null>(null);
@@ -117,11 +115,11 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
       <form className="w-full relative mt-8 rounded-[40px] xl:rounded-[49px] rounded-t-2xl xl:rounded-t-3xl shadow-xl dark:shadow-2xl bg-white dark:bg-neutral-800">
          {renderRadioBtn()}
          <div className={`relative flex flex-row items-center`}>
-            <LocationInput error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} locations={locations} placeHolder="City or Airport" desc="Pick up location" className="flex-1" divHideVerticalLineClass="-inset-x-0.5" />
+            <LocationInput error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size="normal" divHideVerticalLineClass="-inset-x-0.5" />
             {rentalSearch.type == 'different-destination' && (
                <>
                   <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
-                  <LocationInput error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} locations={locations} placeHolder="City or Airport" desc="Pick up location" className="flex-1" divHideVerticalLineClass="-inset-x-0.5" />
+                  <LocationInput error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size="normal" divHideVerticalLineClass="-inset-x-0.5" />
                </>
             )}
             <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>

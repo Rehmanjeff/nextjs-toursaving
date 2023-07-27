@@ -4,14 +4,15 @@ import { ClockIcon, MapPinIcon } from "@heroicons/react/24/outline";
 import React, { useState, useRef, useEffect, FC, ChangeEvent } from "react";
 import ClearDataButton from "./ClearDataButton";
 import { Location } from "@/app/(client-components)/type";
+import LoaderIcon from "@/shared/LoaderIcon";
 
 export interface LocationInputProps {
    placeHolder?: string;
+   size: 'small' | 'normal';
    desc?: string;
    className?: string;
    divHideVerticalLineClass?: string;
    autoFocus?: boolean;
-   locations: Location[];
    location?: Location | null,
    onInputChange: (location: Location | null, inputIdentifier?: string) => void;
    inputIdentifier?: string;
@@ -24,17 +25,18 @@ const LocationInput: FC<LocationInputProps> = ({
    desc = "Where are you going?",
    className = "nc-flex-1.5",
    divHideVerticalLineClass = "left-10 -right-0.5",
-   locations = [],
    location = null,
    onInputChange,
    inputIdentifier,
-   error = null
+   error = null,
+   size='normal'
 }) => {
    const containerRef = useRef<HTMLDivElement>(null);
    const inputRef = useRef<HTMLInputElement>(null);
 
    const [value, setValue] = useState(location ? location.name : '');
    const [locationResults, setLocationResults] = useState<Location[] | null>(null);
+   const [isLoading, setIsLoading] = useState<Boolean>(false);
    const [showPopover, setShowPopover] = useState(autoFocus);
 
    const resetValue = () => {
@@ -87,15 +89,26 @@ const LocationInput: FC<LocationInputProps> = ({
    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
 
       const query = e.target.value;
-      if(query != ''){
+      if(query.length > 2){
 
+         setIsLoading(true);
          fetch(`/api/locations/${encodeURIComponent(query)}`)
             .then((response) => response.json())
             .then((data) => {
-               setLocationResults(data.data.length ? data.data : null);
+
+               let locations : Location[] = [];
+               data.data.forEach((item:any) => {
+                  locations.push({id: item.place_id, name: item.name});
+               });
+
+               setLocationResults(locations);
                setShowPopover(true);
+               setIsLoading(false);
             })
-            .catch((error) => console.error('Error fetching data:', error));
+            .catch((error) => {
+               console.error('Error fetching data:', error);
+               setIsLoading(false);
+            });
       }else{
 
          setShowPopover(false);
@@ -121,17 +134,15 @@ const LocationInput: FC<LocationInputProps> = ({
 
    return (
       <div className={`relative flex ${className}`} ref={containerRef}>
-         <div onClick={() => setShowPopover(true)} className={`flex z-10 flex-1 relative [ nc-hero-field-padding ] flex-shrink-0 items-center space-x-3 cursor-pointer focus:outline-none text-left  ${showPopover ? "nc-hero-field-focused" : ""}`}>
-            <div className="text-neutral-300 dark:text-neutral-400">
-               <MapPinIcon className="w-5 h-5 lg:w-7 lg:h-7" />
-            </div>
+         <div onClick={() => setShowPopover(true)} className={`flex z-10 flex-1 relative [ ${size=='normal'?'nc-hero-field-padding':'nc-hero-field-padding--small'} ] flex-shrink-0 items-center space-x-3 cursor-pointer focus:outline-none text-left  ${showPopover ? "nc-hero-field-focused" : ""}`}>
+            {size == 'normal' && (<div className="text-neutral-300 dark:text-neutral-400"><MapPinIcon className="w-5 h-5 lg:w-7 lg:h-7" /></div>)}
             <div className="flex-grow">
-               <input className={`block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none focus:placeholder-neutral-300 xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate`} placeholder={placeHolder} value={value} autoFocus={showPopover} onChange={handleInputChange} ref={inputRef} />
+               <input className={`block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none focus:placeholder-neutral-300 ${size=='normal'?'xl:text-lg':'xl:text-base'} font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate`} placeholder={placeHolder} value={value} autoFocus={showPopover} onChange={handleInputChange} ref={inputRef} />
                <span className="block mt-0.5 text-sm text-neutral-400 font-light ">
                   {error !== null && <span className="text-theme-red font-medium">{error}</span>}
                   {error === null && <span className="line-clamp-1">{!!value ? placeHolder : desc}</span>}
                </span>
-               {value && showPopover && (<ClearDataButton onClick={resetValue} />)}
+               {value && showPopover && (isLoading ? <div className="absolute right-1 lg:right-3 top-1/2 transform -translate-y-1/2"><LoaderIcon /></div> : <ClearDataButton onClick={resetValue} />)}
             </div>
          </div>
 

@@ -1,11 +1,10 @@
 "use client";
 
 import React, { FC, useState, useEffect } from "react";
-import LocationInput from "../LocationInput";
+import LocationInput from "@/app/(client-components)/(HeroSearchForm)/LocationInput";
 import DateTimeInput from "../DateTimeInput";
 import IconButton from "@/shared/IconButton";
 import { RentalServiceType, RentalType, Location, SearchParams } from "@/app/(client-components)/type";
-import { DEMO_LOCATIONS } from "@/data/locations";
 import useNextRouter from "@/hooks/useNextRouter";
 import { encodeIntoQuery } from "@/utils/userSearch";
 import { PathName } from "@/routers/types";
@@ -21,7 +20,6 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({
    const { redirectTo } = useNextRouter();
    const [pickupError, setPickupError] = useState<string | null>(null);
    const [dropoffError, setDropoffError] = useState<string | null>(null);
-   const locations : Location[] = DEMO_LOCATIONS;
    const [rentalSearch, setRentalSearch] = useState<RentalServiceType>(userSearch);
    
    useEffect(() => {
@@ -110,11 +108,11 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({
          <form className="w-full relative ">
             {renderRadioBtn()}
             <div className="flex flex-row items-center w-full rounded-full border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800">
-               <LocationInput error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} location={rentalSearch.pickUp !== null ? rentalSearch.pickUp : null} locations={locations} placeHolder="City or Airport" desc="Pick up location" className="flex-1" />
+               <LocationInput error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} location={rentalSearch.pickUp !== null ? rentalSearch.pickUp : null} placeHolder="City or Airport" desc="Pick up location" size="small" className="flex-1" />
                {rentalSearch.type === "different-destination" && (
                   <>
                   <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
-                  <LocationInput error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} location={rentalSearch.dropOff !== null ? rentalSearch.dropOff : null} locations={locations} placeHolder="City or Airport" desc="Drop off location" className="flex-1" divHideVerticalLineClass="-inset-x-0.5"/>
+                  <LocationInput error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} location={rentalSearch.dropOff !== null ? rentalSearch.dropOff : null} placeHolder="City or Airport" desc="Drop off location" size="small" className="flex-1" divHideVerticalLineClass="-inset-x-0.5"/>
                   </>
                )}
                <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
