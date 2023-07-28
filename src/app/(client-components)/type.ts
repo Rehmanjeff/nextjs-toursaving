@@ -11,8 +11,11 @@ export interface PropertyType {
 }
 
 export interface Location {
-   id: number;
+   id: string;
    name: string;
+   icon?: string;
+   coords?: string;
+   desc?: string;
 }
 
 export interface ClassOfProperties extends PropertyType {}

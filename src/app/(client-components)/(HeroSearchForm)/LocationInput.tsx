@@ -5,6 +5,7 @@ import React, { useState, useRef, useEffect, FC, ChangeEvent } from "react";
 import ClearDataButton from "./ClearDataButton";
 import { Location } from "@/app/(client-components)/type";
 import LoaderIcon from "@/shared/LoaderIcon";
+import Image from "next/image";
 
 export interface LocationInputProps {
    placeHolder?: string;
@@ -95,10 +96,10 @@ const LocationInput: FC<LocationInputProps> = ({
          fetch(`/api/locations/${encodeURIComponent(query)}`)
             .then((response) => response.json())
             .then((data) => {
-
                let locations : Location[] = [];
                data.data.forEach((item:any) => {
-                  locations.push({id: item.place_id, name: item.name});
+                  const coords = item.geometry.location.lat + ',' + item.geometry.location.lng;
+                  locations.push({id: item.place_id, name: item.name, icon: item.icon, coords: coords, desc: item.formatted_address});
                });
 
                setLocationResults(locations);
@@ -121,11 +122,14 @@ const LocationInput: FC<LocationInputProps> = ({
       return (
          <>
          {locationResults && locationResults.map((item) => (
-            <span onClick={() => handleSelectLocation(item)} key={item.id} className="flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer">
-               <span className="block text-neutral-400">
-                  <ClockIcon className="h-4 w-4 sm:h-6 sm:w-6" />
+            <span onClick={() => handleSelectLocation(item)} key={item.id} className="flex flex-row items-start space-x-3 sm:space-x-4 px-4 sm:px-8 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer">
+               <span className="block text-neutral-400 mt-2">
+                  {item.icon && (<Image src={item.icon} alt="car main thumbnail" width="20" height="20" />)}
                </span>
-               <span className="block font-medium text-neutral-700 dark:text-neutral-200">{item.name}</span>
+               <span className="flex flex-col">
+                  <span className="block font-medium text-neutral-700 dark:text-neutral-200">{item.name}</span>
+                  {item.desc && (<span className="text-xs text-gray-400">{item.desc}</span>)}
+               </span>
             </span>
          ))}
          </>
@@ -142,7 +146,7 @@ const LocationInput: FC<LocationInputProps> = ({
                   {error !== null && <span className="text-theme-red font-medium">{error}</span>}
                   {error === null && <span className="line-clamp-1">{!!value ? placeHolder : desc}</span>}
                </span>
-               {value && showPopover && (isLoading ? <div className="absolute right-1 lg:right-3 top-1/2 transform -translate-y-1/2"><LoaderIcon /></div> : <ClearDataButton onClick={resetValue} />)}
+               {value && (isLoading ? <div className="absolute right-1 lg:right-3 top-1/2 transform -translate-y-1/2"><LoaderIcon /></div> : <ClearDataButton onClick={resetValue} />)}
             </div>
          </div>
 

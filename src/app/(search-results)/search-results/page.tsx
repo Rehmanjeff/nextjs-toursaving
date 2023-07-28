@@ -17,65 +17,14 @@ export interface SearchResultssProps {}
 
 const SearchResults: FC<SearchResultssProps> = () => {
 
-   const cars : CarDataType[] = [
-      {
-        "id": "9824dd51-14bc-4a05-ba7d-1ca3c3c08bd7",
-        "date": "May 20, 2021",
-        "href": "/cars/123456789" as PathName,
-        "title": "KONA Electric",
-        "featuredImage": "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
-        "galleryImgs": [
-          "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
-          "",
-          "",
-          ""
-        ],
-        "commentCount": 17,
-        "viewCount": 97,
-        "like": true,
-        "address": "8953 Golf Course Terrace",
-        "reviewStart": 5.0,
-        "reviewCount": 126,
-        "price": "$124",
-        "gearshift": "Auto gearbox",
-        "seats": 4,
-        "saleOff": null,
-        "isAds": null,
-        "map": { "lat": 55.2094559, "lng": 61.5594641 }
-      },
-      {
-        "id": "12a181b6-114c-45fa-a0cf-f4285bc7d952",
-        "date": "May 20, 2021",
-        "href": "/cars/123456789" as PathName,
-        "title": "KONA Electric",
-        "featuredImage": "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
-        "galleryImgs": [
-          "https://shop.vinfastauto.com/on/demandware.static/-/Sites-app_vinfast_vn-Library/default/dwc1e10094/images/vfast/Hinh-anh-Thong-so-xe-VinFast-Fadil-cac-mau.png",
-          "",
-          "",
-          ""
-        ],
-        "commentCount": 40,
-        "viewCount": 902,
-        "like": true,
-        "address": "2606 Straubel Crossing",
-        "reviewStart": 4.6,
-        "reviewCount": 217,
-        "price": "$382",
-        "gearshift": "Auto gearbox",
-        "seats": 4,
-        "saleOff": null,
-        "isAds": null,
-        "map": { "lat": 55.1972153, "lng": 61.4407266 }
-      }
-   ];
-
-   const [ isLoading, setIsLoading ] = useState<boolean>(false);
+   const [ cars, setCars ] = useState<CarDataType[]>([]);
+   const [ isLoading, setIsLoading ] = useState<boolean>(true);
    const [search, setSearch] = useState<UserSearch>({'type': null});
-   const pathname = usePathname()
-   const searchParams = useSearchParams()
+   const pathname = usePathname();
+   const searchParams = useSearchParams();
+
    useEffect(() => {
-      
+
       const queryString = window.location.search.substring(1);
       const response : UserSearch | string = decodeFromQuery(queryString);
       
@@ -85,16 +34,38 @@ const SearchResults: FC<SearchResultssProps> = () => {
       }else{
 
          setSearch(() => (response));
-         console.log(JSON.stringify(response));
+         fetch('/api/search', { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({
+               'data': response,
+               'lang': 'en',
+               'currency': 'USD'
+            })})
+            .then((response) => response.json())
+            .then((data) => {
+               console.log(data.response.result)
+               let carsResult : CarDataType[] = [];
+               data.response.result.forEach((car:any) => {
+                  carsResult.push({
+                     id: car.price_uid, 
+                     href: '/car/123456789' as PathName,
+                     title: car.car_class.title,
+                     shortDescription: car.car_class.models.length ? car.car_class.models.map((name : string) => name) : '',
+                     featuredImage: process.env.NEXT_PUBLIC_IWAY_CAR_PHOTO_URI + "/" + car.car_class.photo,
+                     price: car.price,
+                     seats: parseInt(car.car_class.capacity)
+                  });
+               });
+               setIsLoading(false);
+               setCars(carsResult);
+            })
+            .catch((error) => {
+               console.error('Error fetching data:', error);
+               setIsLoading(false);
+            });
       }
-
-      setIsLoading(true);
-      setTimeout(() => {
-         
-         setIsLoading(false);
-      }, 3000);
-
-   }, [pathname, searchParams])
+   }, [pathname, searchParams]);
 
    return (
       <div className={`nc-ListingCarMapPage relative mt-10`}>

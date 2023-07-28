@@ -10,10 +10,12 @@ export function encodeIntoQuery(state: SearchParams): string {
       queryParams.append("type", type);
       queryParams.append("pick-up", pickUp ? pickUp.name : "");
       queryParams.append("pick-up-id", pickUp ? pickUp.id.toString() : "");
+      queryParams.append("pick-up-coords", pickUp && pickUp.coords ? pickUp.coords : "");
 
       if (destination) {
          queryParams.append("destination", destination.name);
          queryParams.append("destination-id", destination.id.toString());
+         queryParams.append("destination-coords", destination.coords ? destination.coords : "");
       }else if (hours !== null && hours !== undefined) {
          queryParams.append("hours", String(hours));
       }
@@ -89,8 +91,8 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
          type: 'chauffer',
          chauffer: {
             type: params['type'],
-            pickUp: {id: params['pick-up-id'], name: params['pick-up']},
-            destination: ('destination' in params) ? {id: params['destination-id'], name: params['destination']} : null,
+            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords']},
+            destination: ('destination' in params) ? {id: params['destination-id'], name: params['destination'], coords: params['destination-coords']} : null,
             hours: ('hours' in params) ? params['hours'] : null,
             startDate: params['start-date'],
             startTime: params['start-time']
