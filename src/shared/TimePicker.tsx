@@ -47,7 +47,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
       <div className="flex flex-row gap-2 items-center ">
          <div className="flex-1">
             <Label>Hour</Label>
-            <Select value={selectedHour} onChange={handleHourChange}>
+            <Select value={selectedHour} onChange={handleHourChange} className="w-full">
                <option value="01">01</option>
                <option value="02">02</option>
                <option value="03">03</option>
@@ -64,14 +64,14 @@ const TimePicker: React.FC<TimePickerProps> = ({
          </div>
          <div className="flex-1">
             <Label>Minutes</Label>
-            <Select value={selectedMinute} onChange={handleMinuteChange}>
+            <Select value={selectedMinute} onChange={handleMinuteChange} className="w-full">
                <option value="00">00</option>
                <option value="30">30</option>
             </Select>
          </div>
          <div className="flex-1">
             <Label>&nbsp;</Label>
-            <Select value={selectedAmPm} onChange={handleAmPmChange}>
+            <Select value={selectedAmPm} onChange={handleAmPmChange} className="w-full">
                <option value="am">AM</option>
                <option value="pm">PM</option>
             </Select>

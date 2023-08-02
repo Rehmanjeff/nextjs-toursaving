@@ -10,9 +10,15 @@ import useNextRouter from '@/hooks/useNextRouter';
 import { RentalServiceType, RentalType, SearchParams } from "@/app/(client-components)/type";
 import { encodeIntoQuery } from "@/utils/userSearch";
 
-export interface RentalCarSearchFormProps {}
+export interface RentalCarSearchFormProps {
+   userSearch? : RentalServiceType,
+   size: 'small' | 'normal';
+}
 
-const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
+const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({
+   userSearch,
+   size = 'normal'
+}) => {
    const { redirectTo } = useNextRouter();
 
    const [pickupError, setPickupError] = useState<string | null>(null);
@@ -25,7 +31,7 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
    defaultDropoffDate.setDate(defaultPickupDate.getDate() + 4);
    const defaultDropoffTime = "12:00 am";
 
-   const [rentalSearch, setRentalSearch] = useState<RentalServiceType>({
+   const [rentalSearch, setRentalSearch] = useState<RentalServiceType>(userSearch ? userSearch : {
       type: 'same-destination',
       pickUp: null,
       dropOff: null,
@@ -107,24 +113,24 @@ const RentalCarSearchForm: FC<RentalCarSearchFormProps> = ({}) => {
 
       if(!hasError){
          const searchQuery = encodeIntoQuery({'rental' : rentalSearch} as SearchParams);
-         redirectTo('/search-results?' + searchQuery as PathName);
+         redirectTo('/search?' + searchQuery as PathName);
       }
    }
 
    return (
-      <form className="w-full relative mt-8 rounded-[40px] xl:rounded-[49px] rounded-t-2xl xl:rounded-t-3xl shadow-xl dark:shadow-2xl bg-white dark:bg-neutral-800">
+      <form className={`[ ${size=='normal' ? 'w-full relative mt-8 rounded-[40px] xl:rounded-[49px] rounded-t-2xl xl:rounded-t-3xl shadow-xl dark:shadow-2xl bg-white dark:bg-neutral-800' : 'w-full relative'} ]`}>
          {renderRadioBtn()}
-         <div className={`relative flex flex-row items-center`}>
-            <LocationInput error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size="normal" divHideVerticalLineClass="-inset-x-0.5" />
+         <div className={`relative flex flex-row items-center [ ${size=='normal' ? '' : 'w-full rounded-full border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800'} ]`}>
+            <LocationInput location={rentalSearch.pickUp !== null ? rentalSearch.pickUp : null} error={pickupError} onInputChange={(location) => handleLocationInputChange(location, "pickup")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size={size} divHideVerticalLineClass="-inset-x-0.5" />
             {rentalSearch.type == 'different-destination' && (
                <>
                   <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
-                  <LocationInput error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size="normal" divHideVerticalLineClass="-inset-x-0.5" />
+                  <LocationInput location={rentalSearch.dropOff !== null ? rentalSearch.dropOff : null} error={dropoffError} onInputChange={(location) => handleLocationInputChange(location, "dropoff")} placeHolder="City or Airport" desc="Pick up location" className="flex-1" size={size} divHideVerticalLineClass="-inset-x-0.5" />
                </>
             )}
             <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
-            <DateTimeInput date={defaultPickupDate} time={defaultPickupTime} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "start-date-time")} placeHolder="Pickup date and time" className="flex-1" />
-            <DateTimeInput date={defaultDropoffDate} time={defaultDropoffTime} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "end-date-time")} placeHolder="Dropoff date and time" className="flex-1" />
+            <DateTimeInput size={size} date={rentalSearch.startDate ? new Date(rentalSearch.startDate * 1) : null} time={rentalSearch.startTime ? rentalSearch.startTime : ''} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "start-date-time")} placeHolder="Pickup date and time" className="flex-1" />
+            <DateTimeInput size={size} date={rentalSearch.endDate ? new Date(rentalSearch.endDate * 1) : null} time={rentalSearch.endTime ? rentalSearch.endTime : ''} onDateTimeChange={(date, time) => handleDateTimeChange(date, time, "end-date-time")} placeHolder="Dropoff date and time" className="flex-1" />
             <div className="pr-2 xl:pr-4">
                <IconButton type="button" className="text-white" onClick={handleSearch} />
             </div>

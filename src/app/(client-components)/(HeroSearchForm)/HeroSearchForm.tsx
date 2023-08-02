@@ -3,8 +3,9 @@
 import React, { FC, useState } from "react";
 import ChaufferSearchForm from "./(car-search-form)/ChaufferSearchForm";
 import RentalCarSearchForm from "./(car-search-form)/RentalCarSearchForm";
+import TransferSearchForm from "./(car-search-form)/TransferSearchForm";
 
-export type SearchTab = "Chauffer" | "Rental";
+export type SearchTab = "Transfer" | "Chauffer" | "Rental";
 
 export interface HeroSearchFormProps {
   className?: string;
@@ -13,9 +14,9 @@ export interface HeroSearchFormProps {
 
 const HeroSearchForm: FC<HeroSearchFormProps> = ({
   className = "",
-  currentTab = "Chauffer"
+  currentTab = "Transfer"
 }) => {
-   const tabs: SearchTab[] = ["Chauffer", "Rental"];
+   const tabs: SearchTab[] = ["Transfer", "Chauffer", "Rental"];
    const [tabActive, setTabActive] = useState<SearchTab>(currentTab);
 
    const handleTabChange = (value : SearchTab) => {
@@ -41,10 +42,12 @@ const HeroSearchForm: FC<HeroSearchFormProps> = ({
 
    const renderForm = () => {
       switch (tabActive) {
+         case "Transfer":
+            return <TransferSearchForm size="normal" />;
          case "Chauffer":
-            return <ChaufferSearchForm />;
+            return <ChaufferSearchForm size="normal" />;
          case "Rental":
-            return <RentalCarSearchForm />;
+            return <RentalCarSearchForm size="normal" />;
 
          default:
             return null;

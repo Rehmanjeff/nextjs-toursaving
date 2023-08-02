@@ -1,3 +1,4 @@
+import { UserSearch } from "@/app/(client-components)/type";
 import { Route } from "@/routers/types";
 import { StaticImageData } from "next/image";
 
@@ -115,8 +116,25 @@ export interface ExperiencesDataType {
   };
 }
 
+export type Supplier = 'iway'
+
+export type Currency = 'usd' | 'bd'
+
+export interface CarAdditionalService {
+   id?: string,
+   serviceId?: string,
+   price?: string,
+   name: string,
+   uid?: string,
+   defaultInclude: boolean,
+   currency?: Currency,
+   category?: string,
+   type?: string
+}
+
 export interface CarDataType {
   id: string | number;
+  priceId: string;
   href: Route<string>;
   title: string;
   shortDescription: string;
@@ -127,4 +145,17 @@ export interface CarDataType {
   price: string;
   seats: number;
   gearshift?: string;
+  supplier : Supplier;
+  currency : Currency;
+  cancellationTime?: string;
+  allowableTime?: string;
+  additionalServices? : [CarAdditionalService];
+  hasFastBooking? : boolean;
+}
+
+export interface CarFullDataType {
+   
+   searchId : string;
+   data: CarDataType;
+   timestamp: number
 }

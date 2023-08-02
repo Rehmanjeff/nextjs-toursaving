@@ -10,6 +10,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-regular-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.14",
     "@heroicons/react": "^2.0.18",
     "@react-google-maps/api": "^2.19.2",
@@ -25,6 +29,7 @@
     "@types/react-dom": "18.2.4",
     "axios": "^1.4.0",
     "client-only": "^0.0.1",
+    "date-fns": "^2.30.0",
     "eslint": "8.41.0",
     "eslint-config-next": "^13.4.3",
     "framer-motion": "^10.12.16",

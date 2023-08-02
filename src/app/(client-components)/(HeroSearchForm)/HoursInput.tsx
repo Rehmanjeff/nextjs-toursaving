@@ -7,23 +7,23 @@ import { ClockIcon } from "@heroicons/react/24/outline";
 import ClearDataButton from "./ClearDataButton";
 
 export interface HoursInputProps {
-   fieldClassName?: string;
    className?: string;
    placeholder?: string;
    desc: string;
    hours?: string;
+   size: 'small' | 'normal';
    onHoursChange: (selectedHours: string) => void;
 }
 
 const hoursData = [ {title: '1' , display: '1 Hour (30KM / 20MI)'}, {title: '2' , display: '2 Hours (60KM / 40MI)'}, {title: '3' , display: '3 Hours (90KM / 60MI)'}, {title: '4' , display: '4 Hours (120KM / 80MI)'}, {title: '5' , display: '5 Hours (150KM / 100MI)'}, {title: '6' , display: '6 Hours (180KM / 120MI)'}, {title: '7' , display: '7 Hours (210KM / 140MI)'}, {title: '8' , display: '8 Hours (240KM / 160MI)'}, {title: '9' , display: '9 Hours (270KM / 180MI)'}, {title: '10' , display: '10 Hours (300KM / 200MI)'}];
 
 const HoursInput: FC<HoursInputProps> = ({
-   fieldClassName = "[ nc-hero-field-padding ]",
    className = "[ nc-flex-1 ]",
    placeholder = 'Hours',
    desc = '',
    hours = '',
-   onHoursChange
+   onHoursChange,
+   size='normal'
 }) => {
    const [inputValue, setInputValue] = useState(hours);
 
@@ -43,17 +43,11 @@ const HoursInput: FC<HoursInputProps> = ({
       <Popover className={`flex relative ${className}`}>
          {({ open }) => (
             <>
-               <div
-                  className={`flex-1 z-10 flex items-center focus:outline-none ${
-                  open ? "nc-hero-field-focused" : ""
-                  }`}
-               >
-                  <Popover.Button
-                  className={`relative z-10 flex-1 flex text-left items-center ${fieldClassName} space-x-3 focus:outline-none`}
-                  >
-                     <div className="text-neutral-300 dark:text-neutral-400">
+               <div className={`flex-1 z-10 flex items-center focus:outline-none ${open ? "nc-hero-field-focused" : "" }`}>
+                  <Popover.Button className={`relative z-10 flex-1 flex text-left items-center [ ${size=='normal'?'nc-hero-field-padding':'nc-hero-field-padding--small'} ] space-x-3 focus:outline-none`}>
+                     {size == 'normal' && (<div className="text-neutral-300 dark:text-neutral-400">
                         <ClockIcon className="w-5 h-5 lg:w-7 lg:h-7" />
-                     </div>
+                     </div>)}
                      <div className="flex-grow text-left">
                         <span className="block xl:text-lg font-semibold">
                            {inputValue ? inputValue + ' Hours' : placeholder}

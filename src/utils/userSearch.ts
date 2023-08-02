@@ -3,22 +3,32 @@ import { SearchParams, UserSearch } from "@/app/(client-components)/type";
 export function encodeIntoQuery(state: SearchParams): string {
    const queryParams = new URLSearchParams();
  
-   if (state.chauffer) {
-      const { type, pickUp, destination, hours, startDate, startTime } = state.chauffer;
+   if (state.transfer) {
+      const { pickUp, destination, startDate, startTime } = state.transfer;
    
-      queryParams.append("drive", 'chauffer');
-      queryParams.append("type", type);
+      queryParams.append("drive", 'transfer');
       queryParams.append("pick-up", pickUp ? pickUp.name : "");
       queryParams.append("pick-up-id", pickUp ? pickUp.id.toString() : "");
       queryParams.append("pick-up-coords", pickUp && pickUp.coords ? pickUp.coords : "");
+      queryParams.append("destination", destination ? destination.name : "");
+      queryParams.append("destination-id", destination ? destination.id.toString() : "");
+      queryParams.append("destination-coords", destination && destination.coords ? destination.coords : "");
 
-      if (destination) {
-         queryParams.append("destination", destination.name);
-         queryParams.append("destination-id", destination.id.toString());
-         queryParams.append("destination-coords", destination.coords ? destination.coords : "");
-      }else if (hours !== null && hours !== undefined) {
-         queryParams.append("hours", String(hours));
+      if (startDate !== null) {
+         queryParams.append("start-date", String(startDate));
       }
+      
+      if (startTime !== null) {
+         queryParams.append("start-time", startTime);
+      }
+   }else if (state.chauffer) {
+      const { pickUp, hours, startDate, startTime } = state.chauffer;
+   
+      queryParams.append("drive", 'chauffer');
+      queryParams.append("pick-up", pickUp ? pickUp.name : "");
+      queryParams.append("pick-up-id", pickUp ? pickUp.id.toString() : "");
+      queryParams.append("pick-up-coords", pickUp && pickUp.coords ? pickUp.coords : "");
+      queryParams.append("hours", String(hours));
 
       if (startDate !== null) {
          queryParams.append("start-date", String(startDate));
@@ -71,9 +81,15 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
    if(!('drive' in params)){
 
       return 'search error';
+   }else if(params['drive'] == 'transfer'){
+
+      if((!('pick-up' in params) || !('pick-up-id' in params)) || (!('destination' in params) || !('destination-id' in params)) || !('start-date' in params) || !('start-time' in params)) {
+
+         return 'transfer search error';
+      }
    }else if(params['drive'] == 'chauffer'){
 
-      if(!('type' in params) || (!('pick-up' in params) || !('pick-up-id' in params)) || ((!('destination' in params) || !('destination-id' in params)) && !('hours' in params)) || !('start-date' in params) || !('start-time' in params)) {
+      if((!('pick-up' in params) || !('pick-up-id' in params)) || !('hours' in params) || !('start-date' in params) || !('start-time' in params)) {
 
          return 'chauffer search error';
       }
@@ -85,18 +101,29 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
       }
    }
 
-   if(params['drive'] == 'chauffer'){
+   if(params['drive'] == 'transfer'){
+
+      state = {
+         type: 'transfer',
+         transfer: {
+            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords']},
+            destination: {id: params['destination-id'], name: params['destination'], coords: params['destination-coords']},
+            startDate: params['start-date'],
+            startTime: params['start-time']
+         },
+         timestamp: new Date().getTime()
+      }
+   }else if(params['drive'] == 'chauffer'){
 
       state = {
          type: 'chauffer',
          chauffer: {
-            type: params['type'],
             pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords']},
-            destination: ('destination' in params) ? {id: params['destination-id'], name: params['destination'], coords: params['destination-coords']} : null,
-            hours: ('hours' in params) ? params['hours'] : null,
+            hours: params['hours'],
             startDate: params['start-date'],
             startTime: params['start-time']
-         }
+         },
+         timestamp: new Date().getTime()
       }
    }else if(params['drive'] == 'rental'){
 
@@ -110,7 +137,8 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
             startTime: params['start-time'],
             endDate: params['end-date'],
             endTime: params['end-time']
-         }
+         },
+         timestamp: new Date().getTime()
       }
    }else{
 

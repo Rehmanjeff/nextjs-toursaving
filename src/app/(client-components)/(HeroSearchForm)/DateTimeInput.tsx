@@ -13,7 +13,7 @@ import ButtonPrimary from "@/shared/ButtonPrimary";
 
 export interface DateTimeInputProps {
   className?: string;
-  fieldClassName?: string;
+  size: 'small' | 'normal';
   placeHolder?: string;
   date: Date | null;
   time: string;
@@ -23,7 +23,7 @@ export interface DateTimeInputProps {
 
 const DateTimeInput: FC<DateTimeInputProps> = ({
   className = "",
-  fieldClassName = "[ nc-hero-field-padding ]",
+  size = "normal",
   placeHolder = "Date and time",
   date,
   time,
@@ -61,9 +61,9 @@ const DateTimeInput: FC<DateTimeInputProps> = ({
    const renderInput = () => {
       return (
          <>
-         <div className="text-neutral-300 dark:text-neutral-400">
+         {size == 'normal' && (<div className="text-neutral-300 dark:text-neutral-400">
             <CalendarIcon className="w-5 h-5 lg:w-7 lg:h-7" />
-         </div>
+         </div>)}
          <div className="flex-grow text-left">
             <span className="block xl:text-lg font-semibold">
                {startDate?.toLocaleDateString("en-US", {month: "short", day: "2-digit"}) || "Choose date"} - {selectedTime ? selectedTime : ''}
@@ -82,7 +82,7 @@ const DateTimeInput: FC<DateTimeInputProps> = ({
          {({ open }) => (
             <>
                <div className={`flex-1 z-10 flex items-center focus:outline-none ${open ? "nc-hero-field-focused" : "" }`}>
-               <Popover.Button ref={popoverRef} className={`flex-1 z-10 flex relative ${fieldClassName} items-center space-x-3 focus:outline-none `}>
+               <Popover.Button ref={popoverRef} className={`flex-1 z-10 flex relative [ ${size=='normal'?'nc-hero-field-padding':'nc-hero-field-padding--small'} ] items-center space-x-3 focus:outline-none `}>
                   {renderInput()}
                   {startDate && open && (<ClearDataButton onClick={resetValue} />)}
                </Popover.Button>

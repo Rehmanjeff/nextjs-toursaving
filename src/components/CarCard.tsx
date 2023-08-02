@@ -1,13 +1,11 @@
 import React, { FC } from "react";
 import { CarDataType } from "@/data/types";
-import StartRating from "@/components/StartRating";
 import BtnLikeIcon from "@/components/BtnLikeIcon";
-import SaleOffBadge from "@/components/SaleOffBadge";
-import Badge from "@/shared/Badge";
 import Image from "next/image";
 import Link from "next/link";
-import { PathName } from "@/routers/types";
-import imagePng from "@/images/hero-right2.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCouch } from '@fortawesome/free-solid-svg-icons'
+import { getCurrencySymbol } from "@/utils/currency";
 
 export interface CarCardProps {
   className?: string;
@@ -48,19 +46,22 @@ const CarCard: FC<CarCardProps> = ({
                      <span>{car.shortDescription} or similar</span>
                   </div>
                   <div className="flex items-center text-neutral-500 dark:text-neutral-400 text-sm space-x-2">
+                     <FontAwesomeIcon icon={faCouch} />
                      <span className="">{car.seats} seats</span>
                   </div>
                </div>
-               <div className="w-14  border-b border-neutral-100 dark:border-neutral-800"></div>
+               <div className="w-14 border-b border-neutral-100 dark:border-neutral-800"></div>
                <div className="flex justify-between items-center">
                   <span className="text-base font-semibold">
                      <span className="text-sm text-neutral-500 dark:text-neutral-400 font-normal">
                         From
                      </span>
                      {` `}
-                     ${car.price}
+                     {getCurrencySymbol(car.currency)}{car.price}
                   </span>
-                  <StartRating reviewCount={car.reviewCount} point={car.reviewStart} />
+                  <div className="flex flex-col">
+                     {car.supplier && car.supplier == 'iway' && <Image src="/suppliers/iway.png" alt="car" width={45} height={19} />}
+                  </div>
                </div>
             </div>
          </>)
