@@ -20,6 +20,7 @@ import { capitalizeFirstLetter } from "@/utils/random";
 import { format } from 'date-fns';
 import { getCurrencySymbol } from "@/utils/currency";
 import { faClock } from '@fortawesome/free-solid-svg-icons'
+import useNextRouter from "@/hooks/useNextRouter";
 
 export interface ListingCarDetailPageProps {params: { carId: string }}
 
@@ -29,7 +30,9 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
    const [car, setCar] = useState<CarDataType|null>(null);
    const [isLoading, setIsLoading] = useState<Boolean>(true);
    const [search, setSearch] = useState<UserSearch | null>(null);
+   const [alert, setAlert] = useState<string | boolean>(false);
    const { carId } = params;
+   const { redirectTo } = useNextRouter();
    
    useEffect(() => {
 
@@ -44,9 +47,6 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
             setIsLoading(false);
             setCar(data.car as CarDataType);
             setSearch(data.search as UserSearch);
-
-            localStorage.setItem('tour-search', JSON.stringify(data.search));
-            localStorage.setItem('tour-checkout-vehicle', JSON.stringify(data.car));
          })
          .catch((error) => {
             setIsLoading(false);
@@ -54,9 +54,47 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
          });
    },[]);
 
+   useEffect(() => {
+
+      localStorage.setItem('tour-search', JSON.stringify(search));
+      localStorage.setItem('tour-checkout-vehicle', JSON.stringify(car));
+   },[search]);
+
+   const handleCheckout = () => {
+
+      let hasError = false;
+      if(search && search.chauffer && search.chauffer.hours && car && car.chauffer){
+
+         if(search.chauffer.hours < car.chauffer.minimumHours){
+            hasError = true;
+            setAlert('This vehicle comes with booking duration of minimum '+ car.chauffer.minimumHours +' hours');
+         }
+      }
+
+      if(!hasError){
+
+         redirectTo('/checkout' as PathName);
+      }
+   }
+
    const toggleEditSearch = () => {
 
       setEditSearch(!editSearch);
+   }
+
+   const syncBookingHours = () => {
+
+      const currentSearch = localStorage.getItem('tour-search');
+      if(currentSearch){
+
+         let newSearch = JSON.parse(currentSearch) as UserSearch;
+         if(newSearch && newSearch.chauffer && car && car.chauffer){
+            newSearch.chauffer.hours = car.chauffer.minimumHours;
+         }
+
+         setSearch(newSearch);
+         redirectTo('/checkout' as PathName);
+      }
    }
    
    const renderSection1 = () => {
@@ -187,7 +225,7 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
                </span>
                {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
                   <span className="text-neutral-500 dark:text-neutral-400">
-                     Booking Hours: {car.chauffer.minimumHours <= search.chauffer.hours ? search.chauffer.hours : car.chauffer.minimumHours}
+                     Min Hours: {car.chauffer.minimumHours <= search.chauffer.hours ? search.chauffer.hours : car.chauffer.minimumHours}
                   </span>
                )}
             </div>
@@ -210,7 +248,17 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
                   <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{car?.grandTotal}</span>
                </div>
             </div>
-            <ButtonPrimary href={"/checkout" as PathName}>Reserve</ButtonPrimary>
+            <ButtonPrimary onClick={handleCheckout}>Reserve</ButtonPrimary>
+            {alert && (<div className="rounded-md bg-yellow-50 p-4 mt-4">
+               <div className="flex flex-col ml-3">
+                  <div className="mt-2 text-sm text-yellow-600 flex flex-col items-start w-full">
+                     <p>{alert}</p>
+                     <p className="mt-5">
+                        <span onClick={syncBookingHours} className="whitespace-nowrap font-medium hover:text-yellow-800 hover:border-yellow-800 cursor-pointer border-yellow-600 text-sm rounded-2xl px-2 py-1 border">Yes, proceed</span>
+                     </p>
+                  </div>
+               </div>
+            </div>)}
          </div>
       );
    };
@@ -281,3 +329,4 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
 };
 
 export default ListingCarDetailPage;
+
