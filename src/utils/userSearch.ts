@@ -10,9 +10,11 @@ export function encodeIntoQuery(state: SearchParams): string {
       queryParams.append("pick-up", pickUp ? pickUp.name : "");
       queryParams.append("pick-up-id", pickUp ? pickUp.id.toString() : "");
       queryParams.append("pick-up-coords", pickUp && pickUp.coords ? pickUp.coords : "");
+      queryParams.append("pick-up-is-airport", pickUp && pickUp.isAirport ? "1" : "");
       queryParams.append("destination", destination ? destination.name : "");
       queryParams.append("destination-id", destination ? destination.id.toString() : "");
       queryParams.append("destination-coords", destination && destination.coords ? destination.coords : "");
+      queryParams.append("destination-is-airport", destination && destination.isAirport ? "1" : "");
 
       if (startDate !== null) {
          queryParams.append("start-date", String(startDate));
@@ -28,6 +30,7 @@ export function encodeIntoQuery(state: SearchParams): string {
       queryParams.append("pick-up", pickUp ? pickUp.name : "");
       queryParams.append("pick-up-id", pickUp ? pickUp.id.toString() : "");
       queryParams.append("pick-up-coords", pickUp && pickUp.coords ? pickUp.coords : "");
+      queryParams.append("pick-up-is-airport", pickUp && pickUp.isAirport ? "1" : "");
       queryParams.append("hours", String(hours));
 
       if (startDate !== null) {
@@ -106,8 +109,8 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
       state = {
          type: 'transfer',
          transfer: {
-            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords']},
-            destination: {id: params['destination-id'], name: params['destination'], coords: params['destination-coords']},
+            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords'], isAirport: params['pick-up-is-airport']},
+            destination: {id: params['destination-id'], name: params['destination'], coords: params['destination-coords'], isAirport: params['destination-is-airport']},
             startDate: params['start-date'],
             startTime: params['start-time']
          },
@@ -118,7 +121,7 @@ export function decodeFromQuery(queryString: string): UserSearch | string {
       state = {
          type: 'chauffer',
          chauffer: {
-            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords']},
+            pickUp: {id: params['pick-up-id'], name: params['pick-up'], coords: params['pick-up-coords'], isAirport: params['pick-up-is-airport']},
             hours: params['hours'],
             startDate: params['start-date'],
             startTime: params['start-time']

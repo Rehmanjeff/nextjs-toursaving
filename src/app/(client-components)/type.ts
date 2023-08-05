@@ -16,6 +16,7 @@ export interface Location {
    icon?: string;
    coords?: string;
    desc?: string;
+   isAirport?: boolean
 }
 
 export interface ClassOfProperties extends PropertyType {}

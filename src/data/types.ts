@@ -132,6 +132,20 @@ export interface CarAdditionalService {
    type?: string
 }
 
+export interface CarPriceBreakdown {
+
+   name: string;
+   price: string
+}
+
+export interface CarChauffer{
+
+   priceBreakdown: CarPriceBreakdown[];
+   deliveryPrice: string;
+   minimumHours: number;
+   ratePerHour: number
+}
+
 export interface CarDataType {
   id: string | number;
   priceId: string;
@@ -143,6 +157,8 @@ export interface CarDataType {
   reviewCount?: number;
   like?: boolean;
   price: string;
+  grandTotal: string;
+  chauffer?: CarChauffer
   seats: number;
   gearshift?: string;
   supplier : Supplier;

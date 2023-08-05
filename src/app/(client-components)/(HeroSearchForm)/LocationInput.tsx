@@ -99,7 +99,7 @@ const LocationInput: FC<LocationInputProps> = ({
                let locations : Location[] = [];
                data.data.forEach((item:any) => {
                   const coords = item.geometry.location.lat + ',' + item.geometry.location.lng;
-                  locations.push({id: item.place_id, name: item.name, icon: item.icon, coords: coords, desc: item.formatted_address});
+                  locations.push({id: item.place_id, name: item.name, icon: item.icon, coords: coords, desc: item.formatted_address, isAirport: item.types.includes('airport')});
                });
 
                setLocationResults(locations);

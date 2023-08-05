@@ -34,7 +34,7 @@ const SearchResults: FC<SearchResultssProps> = () => {
 
          setIsLoading(true);
          setSearch(() => (response));
-         fetch('/api/search', { 
+         fetch('/api/search/iway', {
             method: 'POST', 
             headers: {'Content-Type': 'application/json'}, 
             body: JSON.stringify({

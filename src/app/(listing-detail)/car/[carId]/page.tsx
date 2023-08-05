@@ -9,7 +9,6 @@ import ButtonCircle from "@/shared/ButtonCircle";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import Input from "@/shared/Input";
 import Image from "next/image";
-import { Amenities_demos } from "./constant";
 import LikeSaveBtns from "@/components/LikeSaveBtns";
 import HeroSearchFormSmall from "@/app/(client-components)/(HeroSearchFormSmall)/HeroSearchFormSmall";
 import { PathName } from "@/routers/types";
@@ -20,6 +19,7 @@ import { UserSearch } from "@/app/(client-components)/type";
 import { capitalizeFirstLetter } from "@/utils/random";
 import { format } from 'date-fns';
 import { getCurrencySymbol } from "@/utils/currency";
+import { faClock } from '@fortawesome/free-solid-svg-icons'
 
 export interface ListingCarDetailPageProps {params: { carId: string }}
 
@@ -44,6 +44,9 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
             setIsLoading(false);
             setCar(data.car as CarDataType);
             setSearch(data.search as UserSearch);
+
+            localStorage.setItem('tour-search', JSON.stringify(data.search));
+            localStorage.setItem('tour-checkout-vehicle', JSON.stringify(data.car));
          })
          .catch((error) => {
             setIsLoading(false);
@@ -88,32 +91,10 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
                   <FontAwesomeIcon icon={faCouch} className="text-neutral-500 dark:text-neutral-400" />
                   <span className="">{car?.seats} seats</span>
                </div>
-            </div>
-         </div>
-      );
-   };
-
-   const renderSectionTienIch = () => {
-      return (
-         <div className="listingSection__wrap">
-            <div>
-               <h2 className="text-2xl font-semibold">
-                  Vehicle parameters & utilities{" "}
-               </h2>
-               <span className="block mt-2 text-neutral-500 dark:text-neutral-400">
-                  Questions are at the heart of making things great.
-               </span>
-            </div>
-            <div className="w-14 border-b border-neutral-200 dark:border-neutral-700"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-6 gap-x-10 text-sm text-neutral-700 dark:text-neutral-300 ">
-               {Amenities_demos.map((item, index) => (
-                  <div key={index} className="flex items-center space-x-4 ">
-                  <div className="w-10 flex-shrink-0">
-                     <Image src={item.icon} alt="" />
-                  </div>
-                  <span>{item.name}</span>
-                  </div>
-               ))}
+               {car && car.chauffer && (<div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 text-center sm:text-left sm:space-x-3 ">
+                  <FontAwesomeIcon icon={faClock} className="text-neutral-500 dark:text-neutral-400" />
+                  <span className="">{car.chauffer.minimumHours} hours minimum</span>
+               </div>)}
             </div>
          </div>
       );
@@ -193,24 +174,40 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
    const renderSidebarPrice = () => {
       return (
          <div className="listingSectionSidebar__wrap shadow-xl">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
                <span className="text-3xl font-semibold">
-                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{car?.price}
+
+                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}
+                  {car && search && search.type === 'transfer' && (
+                     <>{car.grandTotal}</>
+                  )}
+                  {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
+                     <>{car.chauffer.ratePerHour} / Hr</>
+                  )}
                </span>
+               {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                     Booking Hours: {car.chauffer.minimumHours <= search.chauffer.hours ? search.chauffer.hours : car.chauffer.minimumHours}
+                  </span>
+               )}
             </div>
             <form className="border border-neutral-200 dark:border-neutral-700 rounded-2xl">
       
             </form>
             <div className="flex flex-col space-y-4 ">
-               <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
-                  <span>$19 x 3 day</span>
-                  <span>$57</span>
-               </div>
 
-               <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
+               {search && search.type == 'chauffer' && car && car.chauffer?.priceBreakdown.length && car.chauffer?.priceBreakdown.map((item, index) => (
+                  <div className="flex flex-col space-y-4" key={index} >
+                     <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
+                        <span>{item.name}</span>
+                        <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{item.price}</span>
+                     </div>
+                     <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
+                  </div>
+               ))}
                <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>$199</span>
+                  <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{car?.grandTotal}</span>
                </div>
             </div>
             <ButtonPrimary href={"/checkout" as PathName}>Reserve</ButtonPrimary>
@@ -267,10 +264,8 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
                <div className="w-full lg:w-3/5 xl:w-2/3 space-y-8 lg:pr-10 lg:space-y-10">
                   {renderSection1()}
                   <div className="block lg:hidden">{renderSidebarDetail()}</div>
-                  {renderSectionTienIch()}
                   {renderSection3()}
-                  {renderSection6()}   
-                  {renderSection8()}
+                  {renderSection6()}
                </div>
    
                <div className="block flex-grow mt-14 lg:mt-0">
