@@ -175,3 +175,13 @@ export interface CarFullDataType {
    data: CarDataType;
    timestamp: number
 }
+
+export interface Passenger {
+
+   name: string;
+   email?: string;
+   phoneNumber: {
+      countryCode: string,
+      number: string
+   }
+}

@@ -225,7 +225,7 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
                </span>
                {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
                   <span className="text-neutral-500 dark:text-neutral-400">
-                     Min Hours: {car.chauffer.minimumHours <= search.chauffer.hours ? search.chauffer.hours : car.chauffer.minimumHours}
+                     Min Hours: {car.chauffer.minimumHours}
                   </span>
                )}
             </div>

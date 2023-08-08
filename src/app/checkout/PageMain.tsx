@@ -7,13 +7,16 @@ import mastercardPng from "@/images/mastercard.svg";
 import Input from "@/shared/Input";
 import Label from "@/components/Label";
 import ButtonPrimary from "@/shared/ButtonPrimary";
-import StartRating from "@/components/StartRating";
 import { format } from 'date-fns';
 import Image from "next/image";
 import Select from "@/shared/Select";
 import { PathName } from "@/routers/types";
-import { CarDataType } from "@/data/types";
+import { CarDataType, Passenger } from "@/data/types";
 import { UserSearch } from "../(client-components)/type";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCouch } from "@fortawesome/free-solid-svg-icons";
+import { getCurrencySymbol } from "@/utils/currency";
+import ChoosePassengers from "@/components/ChoosePassengers";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -23,9 +26,17 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
   className = "",
 }) => {
 
-   const [countryCode, setCountryCode] = useState('+973');
+   const passenger : Passenger = {
+      name : '',
+      phoneNumber: {
+         countryCode: '',
+         number: ''
+      }
+   }
    const [car, setCar] = useState<CarDataType|null>(null);
    const [search, setSearch] = useState<UserSearch | null>(null);
+   const [passengers, setPassengers] = useState<Passenger[]>([passenger]);
+   const [countryCode, setCountryCode] = useState(passenger.phoneNumber.countryCode);
 
    useEffect(() => {
 
@@ -42,69 +53,91 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       }
    },[]);
 
-   const handleCountryCodeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+   const handleCountryCodeChange = (passenger: Passenger, event: ChangeEvent<HTMLSelectElement>) => {
 
       setCountryCode(event.target.value)
    }
 
-  const renderSidebar = () => {
-    return (
-      <div className="w-full flex flex-col sm:rounded-2xl lg:border border-neutral-200 dark:border-neutral-700 space-y-6 sm:space-y-8 px-0 sm:p-6 xl:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center">
-          <div className="flex-shrink-0 w-full sm:w-40">
-            <div className=" aspect-w-4 aspect-h-3 sm:aspect-h-4 rounded-2xl overflow-hidden">
-              <Image
-                alt=""
-                fill
-                sizes="200px"
-                src="https://images.pexels.com/photos/6373478/pexels-photo-6373478.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
-              />
-            </div>
-          </div>
-          <div className="py-5 sm:px-5 space-y-3">
-            <div>
-              <span className="text-sm text-neutral-500 dark:text-neutral-400 line-clamp-1">
-                Hotel room in Tokyo, Jappan
-              </span>
-              <span className="text-base font-medium mt-1 block">
-                The Lounge & Bar
-              </span>
-            </div>
-            <span className="block  text-sm text-neutral-500 dark:text-neutral-400">
-              2 beds · 2 baths
-            </span>
-            <div className="w-10 border-b border-neutral-200  dark:border-neutral-700"></div>
-            <StartRating />
-          </div>
-        </div>
-        <div className="flex flex-col space-y-4">
-          <h3 className="text-2xl font-semibold">Price detail</h3>
-          <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
-            <span>$19 x 3 day</span>
-            <span>$57</span>
-          </div>
-          <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
-            <span>Service charge</span>
-            <span>$0</span>
-          </div>
+   const handlePassengersChange = (adults : number, children : number) => {
 
-          <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
-          <div className="flex justify-between font-semibold">
-            <span>Total</span>
-            <span>$57</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
+      if(adults > passengers.length){
 
-  const renderMain = () => {
-    return (
-      <div className="w-full flex flex-col sm:rounded-2xl sm:border border-neutral-200 dark:border-neutral-700 space-y-8 px-0 sm:p-6 xl:p-8">
-         <h2 className="text-3xl lg:text-4xl font-semibold">
-            Confirm and payment
-         </h2>
-         <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
+            const newPassenger: Passenger = {
+               name: '',
+               phoneNumber: {
+                  countryCode: '',
+                  number: ''
+               }
+            };
+            const updatedPassengers = [...passengers, newPassenger];
+            setPassengers(updatedPassengers);
+      }else if(adults < passengers.length){
+
+         const updatedPassengers = passengers.slice(0, adults);
+         setPassengers(updatedPassengers);
+      }
+   }
+
+   const renderSidebar = () => {
+      return (
+         <div className="w-full flex flex-col sm:rounded-2xl lg:border border-neutral-200 dark:border-neutral-700 space-y-6 sm:space-y-8 px-0 sm:p-6 xl:p-8">
+         <div className="flex flex-col sm:flex-row">
+            <div className="flex-shrink-0 w-full sm:w-40">
+               <div className="rounded-2xl overflow-hidden">
+                  {car && (<Image alt="car image" layout="fixed" width={300} height={150} src={car.featuredImage as string} />)}
+               </div>
+            </div>
+            <div className="pb-5 sm:px-5 space-y-3">
+               <div>
+                  <span className="text-base font-medium mt-1 block">
+                     {car?.shortDescription} or similar
+                  </span>
+               </div>
+               <div className="flex items-center space-x-3 text-sm text-neutral-500 dark:text-neutral-400">
+                  <FontAwesomeIcon icon={faCouch} className="text-neutral-500 dark:text-neutral-400" />
+                  <span>{car?.seats} seats</span>
+               </div>
+            </div>
+         </div>
+         <div className="flex flex-col space-y-4">
+            <h3 className="text-2xl font-semibold">Price detail</h3>
+            <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
+               <span>
+                  {car && search && search.type === 'transfer' && (
+                     <>Subtotal</>
+                  )}
+                  {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
+                     <>{getCurrencySymbol(car.currency ? car.currency : 'usd')}{car.chauffer.ratePerHour}/hr x {search.chauffer.hours}hrs</>
+                  )}
+               </span>
+               <span>
+                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}
+                  {car && search && search.type === 'transfer' && (
+                     <>{car.grandTotal}</>
+                  )}
+                  {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
+                     <>{car.chauffer.ratePerHour * search.chauffer.hours}</>
+                  )}
+               </span>
+            </div>
+            {search && search.type == 'chauffer' && car && car.chauffer?.priceBreakdown.length && car.chauffer?.priceBreakdown.map((item, index) => (
+            <div key={index} className="flex justify-between text-neutral-6000 dark:text-neutral-300">
+               <span>{item.name}</span>
+               <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{item.price}</span>
+            </div>
+            ))}
+            <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
+            <div className="flex justify-between font-semibold">
+               <span>Total</span>
+               <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{car?.grandTotal}</span>
+            </div>
+         </div>
+         </div>
+      );
+   };
+
+   const renderBookingSummary = () => {
+      return (
          <div>
             <div>
                <h3 className="text-2xl font-semibold">Booking summary</h3>
@@ -136,64 +169,54 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                </button>
             </div>)}
          </div>
+      );
+   }
 
+   const renderPassengerDetails = () => {
+      return (
          <div>
             <div>
-               <h3 className="text-2xl font-semibold">Driver's Details</h3>
+               <h3 className="text-2xl font-semibold">Passengers' Details</h3>
                <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
             </div>
+            <div className="mb-12 relative">
+               {car && (<ChoosePassengers maxPassengers={car.seats} onChange={(adults, children) => handlePassengersChange(adults, children)} />)}
+            </div>
             <div className="flex flex-col space-y-5">
-               <div className="space-y-1">
-                  <Label>Email address </Label>
-                  <Input type="email" />
-               </div>
-               <div className="flex flex-row items-center space-y-1 gap-2">
-                  <div className="flex-1">
-                     <Label>First name </Label>
-                     <Input type="text" />
+            {passengers.map((item, index) => (
+               <div key={index} className="flex flex-col space-y-5">
+                  <div className="space-y-1">
+                     <Label>First and last name </Label>
+                     <Input type="text" placeholder="David Burner" value={item.name} />
                   </div>
-                  <div className="flex-1">
-                     <Label>Last name </Label>
-                     <Input type="text" />
-                  </div>
-               </div>
-               <div className="space-y-1">
-                  <Label>Contact number </Label>
-                  <div className="flex items-center gap-1 mt-2">
-                     <Select onChange={handleCountryCodeChange} className="w-auto">
-                        <option value="+973">Bahrain</option>
-                        <option value="+971">UAE</option>
-                        <option value="+966">Saudi Arabia</option>
-                     </Select>
-                     <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 flex items-center">
-                           <span className="flex items-center justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
-                              {countryCode}
-                           </span>
+                  <div className="space-y-1">
+                     <Label>Contact number </Label>
+                     <div className="flex items-center gap-1 mt-2">
+                        <Select onChange={(event) => handleCountryCodeChange(item, event)} className="w-auto">
+                           <option value="+973">Bahrain</option>
+                           <option value="+971">UAE</option>
+                           <option value="+966">Saudi Arabia</option>
+                        </Select>
+                        <div className="relative flex-1">
+                           <div className="absolute inset-y-0 left-0 flex items-center">
+                              <span className="flex items-center justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
+                                 {item.phoneNumber.countryCode}
+                              </span>
+                           </div>
+                           <Input type="number" className="py-1.5 pl-16" />
                         </div>
-                        <Input type="number" className="py-1.5 pl-16" />
                      </div>
                   </div>
+                  <div className="border-b border-dashed border-neutral-200 dark:border-neutral-700"></div>
                </div>
-               <div className="flex space-x-5  ">
-                  <div className="flex-1 space-y-1">
-                     <Label>Country of residence</Label>
-                     <Select className="w-full">
-                        <option value="+973">Bahrain</option>
-                        <option value="+971">UAE</option>
-                        <option value="+966">Saudi Arabia</option>
-                     </Select>
-                  </div>
-               </div>
-               <div className="flex space-x-5  ">
-                  <div className="flex-1 space-y-1">
-                     <Label>Flight number (optional)</Label>
-                     <Input type="text" placeholder="e.g. BH4234" />
-                  </div>
-               </div>
+            ))}
             </div>
          </div>
+      );
+   }
 
+   const renderPaymentDetails = () => {
+      return (
          <div>
             <h3 className="text-2xl font-semibold">Pay with</h3>
             <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
@@ -217,26 +240,25 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                         )}
                      </Tab>
                   </Tab.List>
-
                   <Tab.Panels>
                      <Tab.Panel className="space-y-5">
                         <div className="space-y-1">
-                        <Label>Card number </Label>
-                        <Input type="number" placeholder="111112222999" />
+                           <Label>Card number </Label>
+                           <Input type="number" placeholder="111112222999" />
                         </div>
                         <div className="space-y-1">
-                        <Label>Card holder </Label>
-                        <Input placeholder="JOHN DOE" />
+                           <Label>Card holder </Label>
+                           <Input placeholder="JOHN DOE" />
                         </div>
-                        <div className="flex space-x-5  ">
-                        <div className="flex-1 space-y-1">
-                           <Label>Expiration month and year </Label>
-                           <Input type="month" />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                           <Label>CVC </Label>
-                           <Input type="number" placeholder="123" />
-                        </div>
+                        <div className="flex space-x-5">
+                           <div className="flex-1 space-y-1">
+                              <Label>Expiration month and year </Label>
+                              <Input type="month" />
+                           </div>
+                           <div className="flex-1 space-y-1">
+                              <Label>CVC </Label>
+                              <Input type="number" placeholder="123" />
+                           </div>
                         </div>
                      </Tab.Panel>
                   </Tab.Panels>
@@ -246,18 +268,63 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                </div>
             </div>
          </div>
-      </div>
-    );
-  };
+      );
+   }
 
-  return (
-    <div className={`nc-CheckOutPagePageMain ${className}`}>
-      <main className="container mt-11 mb-24 lg:mb-32 flex flex-col-reverse lg:flex-row">
-        <div className="w-full lg:w-3/5 xl:w-2/3 lg:pr-10 ">{renderMain()}</div>
-        <div className="hidden lg:block flex-grow">{renderSidebar()}</div>
-      </main>
-    </div>
-  );
+   const renderFlightDetails = () => {
+      return (
+         <div className="flex flex-col space-y-5">
+            <div>
+               <h3 className="text-2xl font-semibold">Flight Details</h3>
+               <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
+            </div>
+            <div className="space-y-1">
+               <Label>Flight number </Label>
+               <Input type="text" placeholder="BH9727" />
+            </div>
+            <div className="space-y-1">
+               <Label>Arrival terminal </Label>
+               <Input placeholder="" />
+            </div>
+            <div className="flex space-x-5">
+               <div className="flex-1 space-y-1">
+                  <Label>Flight arrival date </Label>
+                  <Input type="date" />
+               </div>
+               <div className="flex-1 space-y-1">
+                  <Label>Flight arrival time </Label>
+                  <Input type="time" />
+               </div>
+            </div>
+         </div>
+      );
+   }
+
+   const renderMain = () => {
+      return (
+         <div className="w-full flex flex-col sm:rounded-2xl sm:border border-neutral-200 dark:border-neutral-700 space-y-8 px-0 sm:p-6 xl:p-8">
+            <h2 className="text-3xl lg:text-4xl font-semibold">
+               Confirm and payment
+            </h2>
+            <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
+            
+            {renderBookingSummary()}
+            {search && search.chauffer?.pickUp?.isAirport && renderFlightDetails()}
+            {((search && search.transfer?.pickUp?.isAirport) || (search && search.transfer?.destination?.isAirport)) && renderFlightDetails()}
+            {renderPassengerDetails()}
+            {renderPaymentDetails()}
+         </div>
+      );
+   };
+
+   return (
+      <div className={`nc-CheckOutPagePageMain ${className}`}>
+         <main className="container mt-11 mb-24 lg:mb-32 flex flex-col-reverse lg:flex-row">
+         <div className="w-full lg:w-3/5 xl:w-2/3 lg:pr-10 ">{renderMain()}</div>
+         <div className="hidden lg:block flex-grow">{renderSidebar()}</div>
+         </main>
+      </div>
+   );
 };
 
 export default CheckOutPagePageMain;
