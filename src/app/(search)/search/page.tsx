@@ -10,6 +10,7 @@ import {usePathname, useSearchParams} from 'next/navigation';
 import { CarDataType } from "@/data/types";
 import SearchEmpty from "@/shared/SearchEmpty";
 import SearchLoading from "@/shared/SearchLoading";
+import SearchFilters from "@/components/SearchFilters";
 
 export interface SearchResultssProps {}
 
@@ -60,6 +61,7 @@ const SearchResults: FC<SearchResultssProps> = () => {
             <div className="hidden lg:block lg:pb-16">
                <HeroSearchFormSmall search={search} />
             </div>
+            <div className="mb-8 lg:mb-11"><SearchFilters /></div>
             {cars && cars.length > 0 && (<SectionGridFilterCard data={cars} className="pb-24 lg:pb-28" />)}
             {(!cars || cars.length == 0) && !isLoading && (<SearchEmpty />)}
             {cars && cars.length == 0 && isLoading && (<SearchLoading />)}
