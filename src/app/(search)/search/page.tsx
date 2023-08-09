@@ -3,14 +3,13 @@
 import React, { FC, useEffect, useState } from "react";
 import SectionGridFilterCard from "@/app/(car-listings)/SectionGridFilterCard";
 import HeroSearchFormSmall from "@/app/(client-components)/(HeroSearchFormSmall)/HeroSearchFormSmall";
-import BackgroundSection from "@/components/BackgroundSection";
-import SectionSliderNewCategories from "@/components/SectionSliderNewCategories";
 import SectionSubscribe2 from "@/components/SectionSubscribe2";
 import { UserSearch } from "@/app/(client-components)/type";
 import { decodeFromQuery } from "@/utils/userSearch";
 import {usePathname, useSearchParams} from 'next/navigation';
-import Image from "next/image";
 import { CarDataType } from "@/data/types";
+import SearchEmpty from "@/shared/SearchEmpty";
+import SearchLoading from "@/shared/SearchLoading";
 
 export interface SearchResultssProps {}
 
@@ -61,26 +60,12 @@ const SearchResults: FC<SearchResultssProps> = () => {
             <div className="hidden lg:block lg:pb-16">
                <HeroSearchFormSmall search={search} />
             </div>
-            {isLoading && (<><Image className="mx-auto my-16" src="/loading.gif" alt="car" width={150} height={150} /></>)}
-            {!isLoading && (<SectionGridFilterCard data={cars} className="pb-24 lg:pb-28" />)}
+            {cars && cars.length > 0 && (<SectionGridFilterCard data={cars} className="pb-24 lg:pb-28" />)}
+            {(!cars || cars.length == 0) && !isLoading && (<SearchEmpty />)}
+            {cars && cars.length == 0 && isLoading && (<SearchLoading />)}
          </div>
          <div className="container overflow-hidden">
-            <div className="relative py-16">
-               <BackgroundSection />
-               <SectionSliderNewCategories
-                  heading="Explore by types of stays"
-                  subHeading="Explore houses based on 10 types of stays"
-                  categoryCardType="card5"
-                  itemPerRow={5}
-                  sliderStyle="style2"
-               />
-            </div>
-
             <SectionSubscribe2 className="py-24 lg:py-28" />
-
-            <div className="relative py-16 mb-24 lg:mb-28">
-               <BackgroundSection className="bg-orange-50 dark:bg-black dark:bg-opacity-20 " />
-            </div>
          </div>
       </div>
    );

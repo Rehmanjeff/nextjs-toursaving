@@ -26,7 +26,6 @@ export async function POST(request: Request) {
       }
 
       const url = process.env.IWAY_API_URI + uri;
-      console.log(url)
       const apiResponse = await fetch(url, {
          headers: {
             ...headers
@@ -40,6 +39,9 @@ export async function POST(request: Request) {
          const searchId = await saveSearch(search, response);
          const data = await saveCars(searchId, response.result, 'iway', search);
          response = data;
+      }else{
+
+         response = response.result;
       }
 
       return NextResponse.json({ response });

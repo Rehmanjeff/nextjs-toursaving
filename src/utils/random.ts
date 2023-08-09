@@ -9,3 +9,7 @@ export function capitalizeFirstLetter(input: string): string {
 
    return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
 }
+
+export function isEmailValid (email: string) : boolean {
+   return /\S+@\S+\.\S+/.test(email);
+};
