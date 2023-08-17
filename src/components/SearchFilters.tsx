@@ -1,20 +1,81 @@
 import { Popover, Transition } from '@headlessui/react';
-import React, { FC, Fragment, useState } from 'react'
+import React, { FC, Fragment, useEffect, useState } from 'react'
 import convertNumbThousand from "@/utils/convertNumbThousand";
 import Slider from 'rc-slider';
 import ButtonPrimary from '@/shared/ButtonPrimary';
 import ButtonThird from '@/shared/ButtonThird';
 import Checkbox from '@/shared/Checkbox';
 import NcInputNumber from './NcInputNumber';
+import { SearchFilterCapacity, SearchFilters as SearchFiltersType } from '@/app/(client-components)/type';
 
-export interface SearchFiltersProps {}
+export interface SearchFiltersProps {
+   onRangePricesChange: (prices: number[]) => void;
+   onCapacityChange: (capacity: SearchFilterCapacity) => void;
+   onSuppliersChange: (suppliers: string[]) => void;
+   defaultPriceRange: number[],
+   defaultCapacity: number[],
+   filters: SearchFiltersType
+}
 
-const SearchFilters: FC<SearchFiltersProps> = () => {
-
-   const [rangePrices, setRangePrices] = useState([0, 1000]);
+const SearchFilters: FC<SearchFiltersProps> = ({ onRangePricesChange, onCapacityChange, onSuppliersChange, defaultPriceRange, defaultCapacity, filters }) => {
+   
+   const [checkedSuppliers, setCheckedSuppliers] = useState<string[]>([]);
+   const [rangePrices, setRangePrices] = useState(defaultPriceRange);
+   const [capacity, setCapacity] = useState(filters.capacity);
    const allSuppliers = [
-      { name: "Iway", rating: "4.8 (112 reviews)" }
+      { name: "iway", rating: "4.8 (112 reviews)" }
    ];
+
+   useEffect(() => {
+      setRangePrices(defaultPriceRange);
+   }, [defaultPriceRange]);
+
+   const handleRangePricesChange = (value: number | number[]) => {
+
+      setRangePrices(value as number[]);
+      onRangePricesChange(value as number[]);
+   }
+
+   const handleRangePricesClear = (close: () => void) => {
+
+      setRangePrices(defaultPriceRange);
+      onRangePricesChange(defaultPriceRange);
+      close();
+   };
+
+   const handleSeatsChange = (value: number) => {
+
+      setCapacity({seats: value, bags: capacity.bags});
+      onCapacityChange({seats: value, bags: capacity.bags});
+   }
+
+   const handleCapacityClear = (close: () => void) => {
+
+      setCapacity({seats: defaultCapacity[0], bags: defaultCapacity[1]});
+      onCapacityChange({seats: defaultCapacity[0], bags: defaultCapacity[1]});
+      close();
+   };
+
+   const handleSupplierChange = (name: string) => {
+      if (checkedSuppliers.includes(name)) {
+         setCheckedSuppliers(prevChecked => prevChecked.filter(item => item !== name));
+      } else {
+         setCheckedSuppliers(prevChecked => [...prevChecked, name]);
+      }
+   }
+
+   const handleSupplierSubmit = (close: () => void) => {
+
+      onSuppliersChange(checkedSuppliers);
+      close();
+   };
+
+   const handleSupplierClear = (close: () => void) => {
+
+      setCheckedSuppliers([]);
+      onSuppliersChange([]);
+      close();
+   };
    
    const renderXClear = () => {
       return (
@@ -50,7 +111,7 @@ const SearchFilters: FC<SearchFiltersProps> = () => {
                         <div className="relative flex flex-col px-5 py-6 space-y-8">
                            <div className="space-y-5">
                               <span className="font-medium">Price</span>
-                              <Slider range className="text-red-400" min={0} max={2000} defaultValue={[rangePrices[0], rangePrices[1]]} allowCross={false} onChange={(e) => setRangePrices(e as number[])} />
+                              <Slider range className="text-red-400" min={defaultPriceRange[0]} max={defaultPriceRange[1]} defaultValue={[rangePrices[0], rangePrices[1]]} allowCross={false} onChange={handleRangePricesChange} />
                            </div>
       
                            <div className="flex justify-between space-x-5">
@@ -79,8 +140,7 @@ const SearchFilters: FC<SearchFiltersProps> = () => {
                            </div>
                         </div>
                         <div className="p-5 bg-neutral-50 dark:bg-neutral-900 dark:border-t dark:border-neutral-800 flex items-center justify-between">
-                           <ButtonThird onClick={close} sizeClass="px-4 py-2 sm:px-5"> Clear</ButtonThird>
-                           <ButtonPrimary onClick={close} sizeClass="px-4 py-2 sm:px-5">Apply</ButtonPrimary>
+                           <ButtonThird onClick={() => handleRangePricesClear(close)} sizeClass="px-4 py-2 sm:px-5"> Clear</ButtonThird>
                         </div>
                      </div>
                   </Popover.Panel>
@@ -111,12 +171,11 @@ const SearchFilters: FC<SearchFiltersProps> = () => {
                      <Popover.Panel className="absolute z-10 w-screen max-w-sm px-4 mt-3 left-0 sm:px-0 lg:max-w-md">
                         <div className="overflow-hidden rounded-2xl shadow-xl bg-white dark:bg-neutral-900   border border-neutral-200 dark:border-neutral-700">
                            <div className="relative flex flex-col px-5 py-6 space-y-5">
-                              <NcInputNumber label="Seats" max={40} />
-                              <NcInputNumber label="Bags" max={40} />
+                              <NcInputNumber defaultValue={filters.capacity.seats} label="Seats" onChange={handleSeatsChange} max={10} />
+                              {/* <NcInputNumber defaultValue={filters.capacity.bags} label="Bags" max={10} /> */}
                            </div>
                            <div className="p-5 bg-neutral-50 dark:bg-neutral-900 dark:border-t dark:border-neutral-800 flex items-center justify-between">
-                              <ButtonThird onClick={close} sizeClass="px-4 py-2 sm:px-5"> Clear </ButtonThird>
-                              <ButtonPrimary onClick={close} sizeClass="px-4 py-2 sm:px-5">Apply</ButtonPrimary>
+                              <ButtonThird onClick={() => handleCapacityClear(close)} sizeClass="px-4 py-2 sm:px-5"> Clear </ButtonThird>
                            </div>
                         </div>
                      </Popover.Panel>
@@ -149,13 +208,13 @@ const SearchFilters: FC<SearchFiltersProps> = () => {
                            <div className="relative flex flex-col px-5 py-6 space-y-5">
                               {allSuppliers.map((item) => (
                                  <div key={item.name} className="">
-                                    <Checkbox name={item.name} label={item.name} subLabel={item.rating} />
+                                    <Checkbox name={item.name} label={item.name} checked={checkedSuppliers.includes(item.name)} subLabel={item.rating} onChange={() => handleSupplierChange(item.name)} />
                                  </div>
                               ))}
                            </div>
                            <div className="p-5 bg-neutral-50 dark:bg-neutral-900 dark:border-t dark:border-neutral-800 flex items-center justify-between">
-                              <ButtonThird onClick={close} sizeClass="px-4 py-2 sm:px-5">Clear</ButtonThird>
-                              <ButtonPrimary onClick={close} sizeClass="px-4 py-2 sm:px-5">Apply</ButtonPrimary>
+                              <ButtonThird onClick={() => handleSupplierClear(close)} sizeClass="px-4 py-2 sm:px-5">Clear</ButtonThird>
+                              <ButtonPrimary onClick={() => handleSupplierSubmit(close)} sizeClass="px-4 py-2 sm:px-5">Apply</ButtonPrimary>
                            </div>
                         </div>
                      </Popover.Panel>

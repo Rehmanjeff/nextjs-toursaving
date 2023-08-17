@@ -1,3 +1,5 @@
+import { Supplier } from "@/data/types";
+
 export interface GuestsObject {
   guestAdults?: number;
   guestChildren?: number;
@@ -65,4 +67,15 @@ export interface SearchParams {
    transfer?: TransferServiceType;
    chauffer?: ChaufferServiceType;
    rental?: RentalServiceType;
+}
+
+export interface SearchFilterCapacity {
+   seats: number,
+   bags: number
+}
+
+export interface SearchFilters {
+   priceRange: number[];
+   capacity: SearchFilterCapacity;
+   suppliers: Supplier[] | '';
 }
