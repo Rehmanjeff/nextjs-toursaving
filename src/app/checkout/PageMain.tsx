@@ -11,12 +11,14 @@ import { format } from 'date-fns';
 import Image from "next/image";
 import Select from "@/shared/Select";
 import { PathName } from "@/routers/types";
-import { CarDataType, Passenger } from "@/data/types";
+import { BookedAdditionalService, CarDataType, Passenger, Trip } from "@/data/types";
 import { UserSearch } from "../(client-components)/type";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCouch } from "@fortawesome/free-solid-svg-icons";
 import { getCurrencySymbol } from "@/utils/currency";
 import ChoosePassengers from "@/components/ChoosePassengers";
+import ChooseChildSeats from "@/components/ChooseChildSeats";
+import { getCarGrandTotal } from "../services/iway";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -26,17 +28,35 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
   className = "",
 }) => {
 
+   const supplier = 'iway';
+   const [car, setCar] = useState<CarDataType|null>(null);
+   const [search, setSearch] = useState<UserSearch | null>(null);
+   const [bookedAdditionalServices, setBookedAdditionalServices] = useState<BookedAdditionalService[]>([]);
+   const [countryOptions, setCountryOptions] = useState([
+      { value: "+973", label: "Bahrain" },
+      { value: "+971", label: "UAE" },
+      { value: "+966", label: "Saudi Arabia" }
+   ]);
    const passenger : Passenger = {
       name : '',
       phoneNumber: {
-         countryCode: '',
+         countryCode: countryOptions[0].value,
          number: ''
       }
    }
-   const [car, setCar] = useState<CarDataType|null>(null);
-   const [search, setSearch] = useState<UserSearch | null>(null);
-   const [passengers, setPassengers] = useState<Passenger[]>([passenger]);
-   const [countryCode, setCountryCode] = useState(passenger.phoneNumber.countryCode);
+   const [trip, setTrip] = useState<Trip>({
+      passengers : [passenger],
+      passengersNumber: 1,
+      adultsNumber: 1,
+      childrenNumber: 0,
+      supplier: supplier,
+      subTotal: 0,
+      additionalServiceTotal: 0,
+      grandTotal: 0
+   });
+   const childSeatServices = car?.additionalServices?.filter(
+      (item) => item.category == 'baby_seat'
+   );
 
    useEffect(() => {
 
@@ -44,37 +64,108 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       const car = localStorage.getItem('tour-checkout-vehicle');
 
       if(search){
-
          setSearch(JSON.parse(search) as UserSearch);
       }
-      if(car){
 
+      if(car){
          setCar(JSON.parse(car) as CarDataType);
       }
-   },[]);
 
-   const handleCountryCodeChange = (passenger: Passenger, event: ChangeEvent<HTMLSelectElement>) => {
+      if(car && search){
 
-      setCountryCode(event.target.value)
+         let subTotal = 0;
+         if (supplier == 'iway') {
+            subTotal = getCarGrandTotal(JSON.parse(car), JSON.parse(search));
+         }
+
+         const updatedTrip = {
+            ...trip,
+            subTotal: subTotal,
+            grandTotal: subTotal,
+         }
+         setTrip(updatedTrip);
+      }
+   }, []);
+
+   useEffect(() => {
+
+      if(car && search){
+         
+         const servicesTotal = bookedAdditionalServices.reduce((total:number, service:any) => total + service.price * service.frequency, 0);
+         const updatedTrip = {
+            ...trip,
+            additionalServiceTotal: servicesTotal,
+            grandTotal: trip.subTotal + servicesTotal,
+         }
+         setTrip(updatedTrip);
+      }
+
+   }, [bookedAdditionalServices]);
+
+   const handlePassengerChange = (index : number, value : string, type: string) => {
+
+      const updatedTrip = { ...trip };
+      const passengerToUpdate = updatedTrip.passengers[index];
+
+      if (type == 'name') {
+         passengerToUpdate.name = value;
+      } else if (type == 'country_code') {
+         passengerToUpdate.phoneNumber.countryCode = value;
+      } else if (type == 'phone_number') {
+         passengerToUpdate.phoneNumber.number = value.slice(0, 9);
+      }
+
+      setTrip(updatedTrip);
    }
 
-   const handlePassengersChange = (adults : number, children : number) => {
+   const handleTripPassengersChange = (adults: number, children: number) => {
+      const totalPassengers = adults + children;
+    
+         if (totalPassengers > trip.passengers.length) {
+         const newPassenger: Passenger = {
+            name: '',
+            phoneNumber: {
+               countryCode: countryOptions[0].value,
+               number: ''
+            }
+         }
+         const updatedTrip = {
+            ...trip,
+            passengers: [...trip.passengers, newPassenger],
+            passengersNumber: totalPassengers,
+            adultsNumber: adults,
+            childrenNumber: children
+         }
+         setTrip(updatedTrip);
+      } else if (totalPassengers < trip.passengers.length) {
+         const updatedTrip = {
+            ...trip,
+            passengers: trip.passengers.slice(0, totalPassengers),
+            passengersNumber: totalPassengers,
+            adultsNumber: adults,
+            childrenNumber: children
+         }
+         setTrip(updatedTrip);
+      }
+   }
 
-      if(adults > passengers.length){
-
-            const newPassenger: Passenger = {
-               name: '',
-               phoneNumber: {
-                  countryCode: '',
-                  number: ''
-               }
-            };
-            const updatedPassengers = [...passengers, newPassenger];
-            setPassengers(updatedPassengers);
-      }else if(adults < passengers.length){
-
-         const updatedPassengers = passengers.slice(0, adults);
-         setPassengers(updatedPassengers);
+   const handleChildSeatsChange = (index: number, value: number) => {
+      const selectedService = childSeatServices?.[index];
+      if (selectedService) {
+         const existingServiceIndex = bookedAdditionalServices.findIndex(service => service.id === selectedService.id);
+         if (existingServiceIndex !== -1) {
+            if (value === 0) {
+               const updatedServices = [...bookedAdditionalServices];
+               updatedServices.splice(existingServiceIndex, 1);
+               setBookedAdditionalServices(updatedServices);
+            } else {
+               const updatedServices = [...bookedAdditionalServices];
+               updatedServices[existingServiceIndex].frequency = value;
+               setBookedAdditionalServices(updatedServices);
+            }
+         } else {
+            setBookedAdditionalServices(prevServices => [...prevServices, { id: selectedService.id, category: selectedService.category, type: selectedService.type, frequency: value, price: selectedService.price }]);
+         }
       }
    }
 
@@ -111,13 +202,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                   )}
                </span>
                <span>
-                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}
-                  {car && search && search.type === 'transfer' && (
-                     <>{car.grandTotal}</>
-                  )}
-                  {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
-                     <>{car.chauffer.ratePerHour * search.chauffer.hours}</>
-                  )}
+                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{trip?.subTotal}
                </span>
             </div>
             {search && search.type == 'chauffer' && car && car.chauffer?.priceBreakdown.length && car.chauffer?.priceBreakdown.map((item, index) => (
@@ -126,10 +211,18 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{item.price}</span>
             </div>
             ))}
+            {trip?.additionalServiceTotal > 0 && (<div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
+               <span>
+                  Additional services
+               </span>
+               <span>
+                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{trip?.additionalServiceTotal}
+               </span>
+            </div>)}
             <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
             <div className="flex justify-between font-semibold">
                <span>Total</span>
-               <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{car?.grandTotal}</span>
+               <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{trip?.grandTotal}</span>
             </div>
          </div>
          </div>
@@ -163,13 +256,25 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                         {search.type == 'transfer' && <span>{search[search.type]?.destination?.name}</span>}
                         {search.type == 'chauffer' && <span>{search[search.type]?.hours} Hours</span>}
                         {search.type == 'rental' && search[search.type]?.type == 'different-destination' && (<span>{search[search.type]?.dropOff?.name}</span>)}
-                        {search.type == 'transfer' && (<span>{search[search.type]?.destination?.name}</span>)}
                      </div>
                   </div>
                </button>
             </div>)}
          </div>
       );
+   }
+
+   const renderChildSeats = () => {
+
+      if (trip.childrenNumber > 0 && childSeatServices && childSeatServices.length) {
+         return (
+            <div className="mb-12">
+               <ChooseChildSeats maxSeats={trip.childrenNumber} services={childSeatServices} handleChange={handleChildSeatsChange} />
+            </div>
+         );
+      } else {
+         return null;
+      }
    }
 
    const renderPassengerDetails = () => {
@@ -180,30 +285,33 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
             </div>
             <div className="mb-12 relative">
-               {car && (<ChoosePassengers maxPassengers={car.seats} onChange={(adults, children) => handlePassengersChange(adults, children)} />)}
+               {car && (<ChoosePassengers maxPassengers={car.seats} onChange={(adults, children) => handleTripPassengersChange(adults, children)} />)}
+            </div>
+            <div>
+               { renderChildSeats() }
             </div>
             <div className="flex flex-col space-y-5">
-            {passengers.map((item, index) => (
+            {trip.passengers.map((item, index) => (
                <div key={index} className="flex flex-col space-y-5">
                   <div className="space-y-1">
                      <Label>First and last name </Label>
-                     <Input type="text" placeholder="David Burner" value={item.name} />
+                     <Input onChange={(event) => handlePassengerChange(index, event.target.value, 'name')} type="text" placeholder="David Burner" value={item.name} />
                   </div>
                   <div className="space-y-1">
                      <Label>Contact number </Label>
                      <div className="flex items-center gap-1 mt-2">
-                        <Select onChange={(event) => handleCountryCodeChange(item, event)} className="w-auto">
-                           <option value="+973">Bahrain</option>
-                           <option value="+971">UAE</option>
-                           <option value="+966">Saudi Arabia</option>
+                        <Select onChange={(event) => handlePassengerChange(index, event.target.value, 'country_code')} className="w-auto">
+                        {countryOptions.map((option) => (
+                           <option key={option.value} value={option.value}>{option.label}</option>
+                        ))}
                         </Select>
                         <div className="relative flex-1">
                            <div className="absolute inset-y-0 left-0 flex items-center">
-                              <span className="flex items-center justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
+                              <span className="flex items-center w-14 justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
                                  {item.phoneNumber.countryCode}
                               </span>
                            </div>
-                           <Input type="number" className="py-1.5 pl-16" />
+                           <Input onChange={(event) => handlePassengerChange(index, event.target.value, 'phone_number')} type="number" className="py-1.5 pl-16" value={item.phoneNumber.number} />
                         </div>
                      </div>
                   </div>
@@ -278,13 +386,15 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                <h3 className="text-2xl font-semibold">Flight Details</h3>
                <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
             </div>
-            <div className="space-y-1">
-               <Label>Flight number </Label>
-               <Input type="text" placeholder="BH9727" />
-            </div>
-            <div className="space-y-1">
-               <Label>Arrival terminal </Label>
-               <Input placeholder="" />
+            <div className="flex space-x-5">
+               <div className="flex-1 space-y-1">
+                  <Label>Flight number </Label>
+                  <Input type="text" placeholder="BH9727" />
+               </div>
+               <div className="flex-1 space-y-1">
+                  <Label>Arrival terminal </Label>
+                  <Input placeholder="Terminal no 1" />
+               </div>
             </div>
             <div className="flex space-x-5">
                <div className="flex-1 space-y-1">

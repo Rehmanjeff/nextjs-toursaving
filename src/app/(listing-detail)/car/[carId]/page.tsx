@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { getCurrencySymbol } from "@/utils/currency";
 import { faClock } from '@fortawesome/free-solid-svg-icons'
 import useNextRouter from "@/hooks/useNextRouter";
+import CarDetailsLoading from "@/shared/CarDetailsLoading";
 
 export interface ListingCarDetailPageProps {params: { carId: string }}
 
@@ -300,7 +301,7 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
 
    if(isLoading){
 
-      return (<>Loading...</>)
+      return (<CarDetailsLoading />)
    }else{
       
       return (

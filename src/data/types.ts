@@ -121,25 +121,23 @@ export type Supplier = 'iway'
 export type Currency = 'usd' | 'bd'
 
 export interface CarAdditionalService {
-   id?: string,
+   id: string,
    serviceId?: string,
-   price?: string,
+   price: string,
    name: string,
    uid?: string,
    defaultInclude: boolean,
    currency?: Currency,
-   category?: string,
-   type?: string
+   category: string,
+   type: string
 }
 
 export interface CarPriceBreakdown {
-
    name: string;
    price: string
 }
 
 export interface CarChauffer{
-
    priceBreakdown: CarPriceBreakdown[];
    deliveryPrice: string;
    minimumHours: number;
@@ -170,14 +168,12 @@ export interface CarDataType {
 }
 
 export interface CarFullDataType {
-   
    searchId : string;
    data: CarDataType;
    timestamp: number
 }
 
 export interface Passenger {
-
    name: string;
    email?: string;
    phoneNumber: {
@@ -185,3 +181,22 @@ export interface Passenger {
       number: string
    }
 }
+
+export interface Trip {
+   passengers : Passenger[],
+   passengersNumber : number,
+   adultsNumber: number,
+   childrenNumber: number,
+   supplier: Supplier,
+   subTotal: number,
+   additionalServiceTotal: number,
+   grandTotal: number,
+}
+
+export type BookedAdditionalService = {
+   id: string;
+   category: string;
+   type: string;
+   frequency: number;
+   price: string
+};
