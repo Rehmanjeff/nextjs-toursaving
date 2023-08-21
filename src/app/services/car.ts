@@ -3,7 +3,7 @@ import { checkKey, getValue, setValue } from './redis';
 import random from '@/utils/random';
 import { PathName } from '@/routers/types';
 import { UserSearch } from '../(client-components)/type';
-import { getCarGrandTotal } from './iway';
+import { getCarSubTotal } from './iway';
 
 export async function saveCars(searchId : string, cars: any, supplier: Supplier, search : UserSearch){
 
@@ -12,11 +12,13 @@ export async function saveCars(searchId : string, cars: any, supplier: Supplier,
       
       const carId = random();
       const item = cars[index];
+      let priceBreakDown = [];
       let car : CarDataType | undefined;
       
       if(supplier == 'iway'){
 
          let additionalServices : [CarAdditionalService] | undefined;
+         let total = getCarSubTotal(item, search);
          if(item.additional_services){
 
             additionalServices = item.additional_services.map((service : any) => {
@@ -34,9 +36,11 @@ export async function saveCars(searchId : string, cars: any, supplier: Supplier,
             });
          }
 
-         let priceBreakDown = [];
+         priceBreakDown.push({name: 'Subtotal', price: total.toString()} as CarPriceBreakdown);
+
          if(item.car_deliverance_fee){
             priceBreakDown.push({name: 'Delivery', price: item.car_deliverance_fee} as CarPriceBreakdown);
+            total += item.car_deliverance_fee;
          }
 
          car = {
@@ -47,7 +51,8 @@ export async function saveCars(searchId : string, cars: any, supplier: Supplier,
             shortDescription: item.car_class.models.length ? item.car_class.models.join(',') : '',
             featuredImage: process.env.NEXT_PUBLIC_IWAY_CAR_PHOTO_URI + "/" + item.car_class.photo,
             price: item.price,
-            grandTotal : getCarGrandTotal(item, search).toString(),
+            priceBreakdown: priceBreakDown,
+            grandTotal : total.toString(),
             seats: parseInt(item.car_class.capacity),
             supplier: supplier,
             currency: item.currency.toLowerCase(),
@@ -64,7 +69,6 @@ export async function saveCars(searchId : string, cars: any, supplier: Supplier,
             
             car.chauffer = {
                deliveryPrice: item.car_deliverance_fee,
-               priceBreakdown: priceBreakDown,
                minimumHours: item.minimum_duration/3600,
                ratePerHour: item.price_per_hour
             }

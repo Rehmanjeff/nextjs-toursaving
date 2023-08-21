@@ -138,7 +138,6 @@ export interface CarPriceBreakdown {
 }
 
 export interface CarChauffer{
-   priceBreakdown: CarPriceBreakdown[];
    deliveryPrice: string;
    minimumHours: number;
    ratePerHour: number
@@ -155,6 +154,7 @@ export interface CarDataType {
   reviewCount?: number;
   like?: boolean;
   price: string;
+  priceBreakdown: CarPriceBreakdown[];
   grandTotal: string;
   chauffer?: CarChauffer
   seats: number;

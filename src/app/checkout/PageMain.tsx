@@ -18,7 +18,9 @@ import { faCouch } from "@fortawesome/free-solid-svg-icons";
 import { getCurrencySymbol } from "@/utils/currency";
 import ChoosePassengers from "@/components/ChoosePassengers";
 import ChooseChildSeats from "@/components/ChooseChildSeats";
-import { getCarGrandTotal } from "../services/iway";
+import { useForm } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -27,6 +29,22 @@ export interface CheckOutPagePageMainProps {
 const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
   className = "",
 }) => {
+
+   const schema = yup.object().shape({
+      passengers: yup.array().of(
+         yup.object().shape({
+            name: yup.string().required('Name is required')
+         })
+      ),
+   });
+
+   const { register, handleSubmit, formState: { errors } } = useForm({
+      resolver: yupResolver(schema),
+   });
+
+   const onSubmit = (data: any) => {
+      console.log(data);
+   };
 
    const supplier = 'iway';
    const [car, setCar] = useState<CarDataType|null>(null);
@@ -75,7 +93,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
 
          let subTotal = 0;
          if (supplier == 'iway') {
-            subTotal = getCarGrandTotal(JSON.parse(car), JSON.parse(search));
+            const c = JSON.parse(car);
+            subTotal = parseFloat(c.grandTotal);
          }
 
          const updatedTrip = {
@@ -192,24 +211,11 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
          </div>
          <div className="flex flex-col space-y-4">
             <h3 className="text-2xl font-semibold">Price detail</h3>
-            <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
-               <span>
-                  {car && search && search.type === 'transfer' && (
-                     <>Subtotal</>
-                  )}
-                  {car && car.chauffer && search && search.type === 'chauffer' && search.chauffer && search.chauffer.hours && (
-                     <>{getCurrencySymbol(car.currency ? car.currency : 'usd')}{car.chauffer.ratePerHour}/hr x {search.chauffer.hours}hrs</>
-                  )}
-               </span>
-               <span>
-                  {getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{trip?.subTotal}
-               </span>
-            </div>
-            {search && search.type == 'chauffer' && car && car.chauffer?.priceBreakdown.length && car.chauffer?.priceBreakdown.map((item, index) => (
-            <div key={index} className="flex justify-between text-neutral-6000 dark:text-neutral-300">
-               <span>{item.name}</span>
-               <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{item.price}</span>
-            </div>
+            {car && car.priceBreakdown.length && car.priceBreakdown.map((item, index) => (
+               <div key={index} className="flex justify-between text-neutral-6000 dark:text-neutral-300">
+                  <span>{item.name}</span>
+                  <span>{getCurrencySymbol(car?.currency ? car?.currency : 'usd')}{item.price}</span>
+               </div>
             ))}
             {trip?.additionalServiceTotal > 0 && (<div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
                <span>
@@ -315,6 +321,13 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                         </div>
                      </div>
                   </div>
+                  {errors.passengers && errors.passengers[index] && (
+                     <>
+                     {errors.passengers[index]?.name && (
+                        <p>{errors.passengers[index]?.name?.message}</p>
+                     )}
+                     </>
+                  )}
                   <div className="border-b border-dashed border-neutral-200 dark:border-neutral-700"></div>
                </div>
             ))}
@@ -396,16 +409,6 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                   <Input placeholder="Terminal no 1" />
                </div>
             </div>
-            <div className="flex space-x-5">
-               <div className="flex-1 space-y-1">
-                  <Label>Flight arrival date </Label>
-                  <Input type="date" />
-               </div>
-               <div className="flex-1 space-y-1">
-                  <Label>Flight arrival time </Label>
-                  <Input type="time" />
-               </div>
-            </div>
          </div>
       );
    }
@@ -413,11 +416,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
    const renderMain = () => {
       return (
          <div className="w-full flex flex-col sm:rounded-2xl sm:border border-neutral-200 dark:border-neutral-700 space-y-8 px-0 sm:p-6 xl:p-8">
-            <h2 className="text-3xl lg:text-4xl font-semibold">
-               Confirm and payment
-            </h2>
+            <h2 className="text-3xl lg:text-4xl font-semibold" onClick={handleSubmit(onSubmit)}>Confirm and payment</h2>
             <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
-            
             {renderBookingSummary()}
             {search && search.chauffer?.pickUp?.isAirport && renderFlightDetails()}
             {((search && search.transfer?.pickUp?.isAirport) || (search && search.transfer?.destination?.isAirport)) && renderFlightDetails()}
@@ -430,8 +430,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
    return (
       <div className={`nc-CheckOutPagePageMain ${className}`}>
          <main className="container mt-11 mb-24 lg:mb-32 flex flex-col-reverse lg:flex-row">
-         <div className="w-full lg:w-3/5 xl:w-2/3 lg:pr-10 ">{renderMain()}</div>
-         <div className="hidden lg:block flex-grow">{renderSidebar()}</div>
+            <div className="w-full lg:w-3/5 xl:w-2/3 lg:pr-10 ">{renderMain()}</div>
+            <div className="hidden lg:block flex-grow">{renderSidebar()}</div>
          </main>
       </div>
    );

@@ -235,7 +235,7 @@ const ListingCarDetailPage: FC<ListingCarDetailPageProps> = ({params}) => {
             </form>
             <div className="flex flex-col space-y-4 ">
 
-               {search && search.type == 'chauffer' && car && car.chauffer?.priceBreakdown.length && car.chauffer?.priceBreakdown.map((item, index) => (
+               {search && search.type == 'chauffer' && car && car.priceBreakdown.length && car.priceBreakdown.map((item, index) => (
                   <div className="flex flex-col space-y-4" key={index} >
                      <div className="flex justify-between text-neutral-6000 dark:text-neutral-300">
                         <span>{item.name}</span>

@@ -1,6 +1,6 @@
 import { UserSearch } from "../(client-components)/type";
 
-export function getCarGrandTotal(car : any, search : UserSearch){
+export function getCarSubTotal(car : any, search : UserSearch){
 
    let total = 0;
 
@@ -15,10 +15,6 @@ export function getCarGrandTotal(car : any, search : UserSearch){
       const subTotal = car.price_per_hour * bookingHours;
       total += subTotal;
 
-      if(car.car_deliverance_fee){
-
-         total += car.car_deliverance_fee;
-      }
    }else if(search.type == 'transfer'){
 
       total += car.price;
