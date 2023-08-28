@@ -1,7 +1,7 @@
 "use client";
 
 import { Tab } from "@headlessui/react";
-import React, { FC, Fragment, useState, ChangeEvent, useEffect } from "react";
+import React, { FC, Fragment, useState, useEffect } from "react";
 import visaPng from "@/images/vis.png";
 import mastercardPng from "@/images/mastercard.svg";
 import Input from "@/shared/Input";
@@ -9,8 +9,6 @@ import Label from "@/components/Label";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import { format } from 'date-fns';
 import Image from "next/image";
-import Select from "@/shared/Select";
-import { PathName } from "@/routers/types";
 import { BookedAdditionalService, CarDataType, Passenger, Trip } from "@/data/types";
 import { UserSearch } from "../(client-components)/type";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,6 +19,7 @@ import ChooseChildSeats from "@/components/ChooseChildSeats";
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { isValidExpiration, creditCardNumberRegExp } from "@/utils/common";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -30,31 +29,18 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
   className = "",
 }) => {
 
-   const schema = yup.object().shape({
-      passengers: yup.array().of(
-         yup.object().shape({
-            name: yup.string().required('Name is required')
-         })
-      ),
-   });
-
-   const { register, handleSubmit, formState: { errors } } = useForm({
-      resolver: yupResolver(schema),
-   });
-
-   const onSubmit = (data: any) => {
-      console.log(data);
-   };
-
    const supplier = 'iway';
    const [car, setCar] = useState<CarDataType|null>(null);
    const [search, setSearch] = useState<UserSearch | null>(null);
    const [bookedAdditionalServices, setBookedAdditionalServices] = useState<BookedAdditionalService[]>([]);
+   const hasAirport = (search && search.transfer?.pickUp?.isAirport) || (search && search.transfer?.destination?.isAirport) || (search?.chauffer?.pickUp?.isAirport) ? true : false;
+   const hasGreetingSign = (search && search.transfer?.pickUp?.isAirport) || (search && search.chauffer?.pickUp?.isAirport) ? true : false;
    const [countryOptions, setCountryOptions] = useState([
       { value: "+973", label: "Bahrain" },
       { value: "+971", label: "UAE" },
       { value: "+966", label: "Saudi Arabia" }
    ]);
+
    const passenger : Passenger = {
       name : '',
       phoneNumber: {
@@ -62,19 +48,82 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
          number: ''
       }
    }
+
    const [trip, setTrip] = useState<Trip>({
       passengers : [passenger],
       passengersNumber: 1,
       adultsNumber: 1,
       childrenNumber: 0,
+      flight: {
+         number: '',
+         terminal: '',
+         greetingSign: ''
+      },
+      additionalServices: [],
+      notes: '',
       supplier: supplier,
       subTotal: 0,
       additionalServiceTotal: 0,
       grandTotal: 0
    });
+
    const childSeatServices = car?.additionalServices?.filter(
       (item) => item.category == 'baby_seat'
    );
+
+   const cardSchema = yup.object().shape({
+      number: yup.string().required('Card number is required').matches(creditCardNumberRegExp, 'Invalid credit card number format'),
+      name: yup.string().required('Card name is required'),
+      expiration: yup.string().required('card expiration is required').test('expiration', 'Invalid expiration date', isValidExpiration),
+      cvc: yup.string().required('CVC is required').length(3, 'CVC should be a 3 digit number'),
+   });
+
+   const flightSchema = yup.object().shape({
+      number: yup.string().required('Flight number is required'),
+      terminal: yup.string(),
+      greetingSign: yup.string()
+   });
+
+   const schema = yup.object().shape({
+      passengers: yup.array().of(
+         yup.object().shape({
+            name: yup.string().required('Name is required'),
+            phoneNumber: yup.object().shape({
+               number: yup.string().required('Phone number is required'),
+               countryCode: yup.string().required('Country code is required'),
+            })
+         })
+      ),
+      flight: yup.lazy((value) => hasAirport ? flightSchema : yup.object({}) ),
+      notes: yup.string(),
+      card: cardSchema
+   });
+
+   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm({
+      resolver: yupResolver(schema),
+   });
+
+   const onSubmit = (data: any) => {
+      
+      const updatedPassengers = trip.passengers.map((passenger, index) => {
+         const updatedPassenger = data.passengers[index];
+         return {
+            ...passenger,
+            ...updatedPassenger
+         };
+      });
+
+      const updatedTrip = {
+         ...trip,
+         passengers: updatedPassengers,
+         notes: data.notes,
+         flight: data.flight
+      }
+
+      setTrip(updatedTrip);
+
+      //todo: hit iway to get booking possiblity
+   }
 
    useEffect(() => {
 
@@ -113,6 +162,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
          const servicesTotal = bookedAdditionalServices.reduce((total:number, service:any) => total + service.price * service.frequency, 0);
          const updatedTrip = {
             ...trip,
+            additionalServices: bookedAdditionalServices,
             additionalServiceTotal: servicesTotal,
             grandTotal: trip.subTotal + servicesTotal,
          }
@@ -121,26 +171,10 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
 
    }, [bookedAdditionalServices]);
 
-   const handlePassengerChange = (index : number, value : string, type: string) => {
-
-      const updatedTrip = { ...trip };
-      const passengerToUpdate = updatedTrip.passengers[index];
-
-      if (type == 'name') {
-         passengerToUpdate.name = value;
-      } else if (type == 'country_code') {
-         passengerToUpdate.phoneNumber.countryCode = value;
-      } else if (type == 'phone_number') {
-         passengerToUpdate.phoneNumber.number = value.slice(0, 9);
-      }
-
-      setTrip(updatedTrip);
-   }
-
    const handleTripPassengersChange = (adults: number, children: number) => {
       const totalPassengers = adults + children;
     
-         if (totalPassengers > trip.passengers.length) {
+      if (totalPassengers > trip.passengers.length) {
          const newPassenger: Passenger = {
             name: '',
             phoneNumber: {
@@ -155,6 +189,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             adultsNumber: adults,
             childrenNumber: children
          }
+
          setTrip(updatedTrip);
       } else if (totalPassengers < trip.passengers.length) {
          const updatedTrip = {
@@ -298,38 +333,31 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             </div>
             <div className="flex flex-col space-y-5">
             {trip.passengers.map((item, index) => (
-               <div key={index} className="flex flex-col space-y-5">
-                  <div className="space-y-1">
-                     <Label>First and last name </Label>
-                     <Input onChange={(event) => handlePassengerChange(index, event.target.value, 'name')} type="text" placeholder="David Burner" value={item.name} />
-                  </div>
-                  <div className="space-y-1">
-                     <Label>Contact number </Label>
-                     <div className="flex items-center gap-1 mt-2">
-                        <Select onChange={(event) => handlePassengerChange(index, event.target.value, 'country_code')} className="w-auto">
+            <div key={index} className="flex flex-col space-y-5">
+               <div className="space-y-1">
+                  <Label>First and last name</Label>
+                  <Input type="text" placeholder="David Burner" error={errors.passengers && errors.passengers[index] && errors.passengers[index]?.name ? errors.passengers[index]?.name?.message : ''} {...register(`passengers[${index}].name` as `passengers.${number}.name`)} />
+               </div>
+               <div className="space-y-1">
+                  <Label>Contact number</Label>
+                  <div className="flex items-start gap-1 mt-2">
+                     <select {...register(`passengers[${index}].phoneNumber.countryCode` as `passengers.${number}.phoneNumber.countryCode`)} className="w-auto border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white dark:border-neutral-700 dark:focus:ring-primary-6000 dark:focus:ring-opacity-25 dark:bg-neutral-900 rounded-2xl text-sm font-normal h-11">
                         {countryOptions.map((option) => (
                            <option key={option.value} value={option.value}>{option.label}</option>
                         ))}
-                        </Select>
-                        <div className="relative flex-1">
-                           <div className="absolute inset-y-0 left-0 flex items-center">
-                              <span className="flex items-center w-14 justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
-                                 {item.phoneNumber.countryCode}
-                              </span>
-                           </div>
-                           <Input onChange={(event) => handlePassengerChange(index, event.target.value, 'phone_number')} type="number" className="py-1.5 pl-16" value={item.phoneNumber.number} />
+                     </select>
+                     <div className="relative flex-1">
+                        <div className="absolute inset-y-0 left-0 flex items-start">
+                           <span className="flex items-center w-14 justify-center px-2 h-11 border-r text-sm bg-transparent border-colo-neutral-200">
+                              {watch(`passengers[${index}].phoneNumber.countryCode` as any) || item.phoneNumber.countryCode}
+                           </span>  
                         </div>
+                        <Input type="text" className="py-1.5 pl-16" error={errors.passengers && errors.passengers[index] && errors.passengers[index]?.phoneNumber ? errors.passengers[index]?.phoneNumber?.number?.message : ''} {...register(`passengers[${index}].phoneNumber.number` as `passengers.${number}.phoneNumber.number`)} />
                      </div>
                   </div>
-                  {errors.passengers && errors.passengers[index] && (
-                     <>
-                     {errors.passengers[index]?.name && (
-                        <p>{errors.passengers[index]?.name?.message}</p>
-                     )}
-                     </>
-                  )}
-                  <div className="border-b border-dashed border-neutral-200 dark:border-neutral-700"></div>
                </div>
+               <div className="border-b border-dashed border-neutral-200 dark:border-neutral-700"></div>
+            </div>
             ))}
             </div>
          </div>
@@ -365,27 +393,27 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                      <Tab.Panel className="space-y-5">
                         <div className="space-y-1">
                            <Label>Card number </Label>
-                           <Input type="number" placeholder="111112222999" />
+                           <Input type="number" placeholder="111112222999" error={errors.card?.number?.message} {...register('card.number' as any)} />
                         </div>
                         <div className="space-y-1">
                            <Label>Card holder </Label>
-                           <Input placeholder="JOHN DOE" />
+                           <Input placeholder="John Doe" error={errors.card?.name?.message} {...register('card.name' as any)} />
                         </div>
                         <div className="flex space-x-5">
                            <div className="flex-1 space-y-1">
                               <Label>Expiration month and year </Label>
-                              <Input type="month" />
+                              <Input type="month" error={errors.card?.expiration?.message} {...register('card.expiration' as any)} />
                            </div>
                            <div className="flex-1 space-y-1">
                               <Label>CVC </Label>
-                              <Input type="number" placeholder="123" />
+                              <Input type="number" placeholder="123" error={errors.card?.cvc?.message} {...register('card.cvc' as any)} />
                            </div>
                         </div>
                      </Tab.Panel>
                   </Tab.Panels>
                </Tab.Group>
                <div className="pt-8">
-                  <ButtonPrimary href={"pay-done" as PathName}>Confirm and pay</ButtonPrimary>
+                  <ButtonPrimary onClick={handleSubmit(onSubmit)}>Confirm and pay</ButtonPrimary>
                </div>
             </div>
          </div>
@@ -402,11 +430,42 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             <div className="flex space-x-5">
                <div className="flex-1 space-y-1">
                   <Label>Flight number </Label>
-                  <Input type="text" placeholder="BH9727" />
+                  {/*  @ts-ignore */}
+                  <Input type="text" placeholder="BH9727" defaultValue={trip.flight.number} error={errors.flight?.number?.message} {...register('flight.number' as any)} />
                </div>
                <div className="flex-1 space-y-1">
                   <Label>Arrival terminal </Label>
-                  <Input placeholder="Terminal no 1" />
+                  <Input placeholder="Terminal no 1" defaultValue={trip?.flight?.terminal} {...register('flight.terminal' as any)} />
+               </div>
+            </div>
+         </div>
+      );
+   }
+
+   const renderAdditionalNote = () => {
+      return (
+         <div className="flex flex-col space-y-5">
+            <div>
+               <h3 className="text-2xl font-semibold">Notes</h3>
+               <div className="w-14 border-b border-neutral-200 dark:border-neutral-700 my-5"></div>
+            </div>
+            <div className="flex space-x-5">
+               <div className="flex-1 space-y-1">
+                  <Input type="text" placeholder="E.g information about kids, large luggage" {...register('notes' as any)} />
+               </div>
+            </div>
+         </div>
+      );
+   }
+
+   const renderGreetingSign = () => {
+      return (
+         <div className="flex flex-col space-y-5">
+            <div className="flex space-x-5">
+               <div className="flex-1 space-y-1">
+                  <Label>Greeting sign </Label>
+                  {/*  @ts-ignore */}
+                  <Input type="text" defaultValue={trip.flight.greetingSign} {...register('flight.greetingSign' as any)} />
                </div>
             </div>
          </div>
@@ -416,12 +475,13 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
    const renderMain = () => {
       return (
          <div className="w-full flex flex-col sm:rounded-2xl sm:border border-neutral-200 dark:border-neutral-700 space-y-8 px-0 sm:p-6 xl:p-8">
-            <h2 className="text-3xl lg:text-4xl font-semibold" onClick={handleSubmit(onSubmit)}>Confirm and payment</h2>
+            <h2 className="text-3xl lg:text-4xl font-semibold">Confirm and payment</h2>
             <div className="border-b border-neutral-200 dark:border-neutral-700"></div>
             {renderBookingSummary()}
-            {search && search.chauffer?.pickUp?.isAirport && renderFlightDetails()}
-            {((search && search.transfer?.pickUp?.isAirport) || (search && search.transfer?.destination?.isAirport)) && renderFlightDetails()}
+            {hasAirport && renderFlightDetails()}
+            {hasGreetingSign && renderGreetingSign()}
             {renderPassengerDetails()}
+            {renderAdditionalNote()}
             {renderPaymentDetails()}
          </div>
       );

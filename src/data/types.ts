@@ -187,6 +187,9 @@ export interface Trip {
    passengersNumber : number,
    adultsNumber: number,
    childrenNumber: number,
+   additionalServices: BookedAdditionalService[],
+   flight?: FlightDetails,
+   notes: string,
    supplier: Supplier,
    subTotal: number,
    additionalServiceTotal: number,
@@ -199,4 +202,10 @@ export type BookedAdditionalService = {
    type: string;
    frequency: number;
    price: string
+};
+
+export type FlightDetails = {
+   number: string;
+   terminal: string,
+   greetingSign: string
 };
