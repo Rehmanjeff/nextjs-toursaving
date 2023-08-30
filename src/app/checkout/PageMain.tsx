@@ -20,6 +20,7 @@ import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { isValidExpiration, creditCardNumberRegExp } from "@/utils/common";
+import BookingFailure from "@/shared/BookingFailure";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -32,6 +33,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
    const supplier = 'iway';
    const [car, setCar] = useState<CarDataType|null>(null);
    const [search, setSearch] = useState<UserSearch | null>(null);
+   const [isLoading, setIsLoading] = useState<boolean>(false);
+   const [hasError, setHasError] = useState<false | string>(false);
    const [bookedAdditionalServices, setBookedAdditionalServices] = useState<BookedAdditionalService[]>([]);
    const hasAirport = (search && search.transfer?.pickUp?.isAirport) || (search && search.transfer?.destination?.isAirport) || (search?.chauffer?.pickUp?.isAirport) ? true : false;
    const hasGreetingSign = (search && search.transfer?.pickUp?.isAirport) || (search && search.chauffer?.pickUp?.isAirport) ? true : false;
@@ -105,24 +108,47 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
 
    const onSubmit = (data: any) => {
       
-      const updatedPassengers = trip.passengers.map((passenger, index) => {
-         const updatedPassenger = data.passengers[index];
-         return {
-            ...passenger,
-            ...updatedPassenger
-         };
-      });
+      if(!isLoading){
 
-      const updatedTrip = {
-         ...trip,
-         passengers: updatedPassengers,
-         notes: data.notes,
-         flight: data.flight
+         const updatedPassengers = trip.passengers.map((passenger, index) => {
+            const updatedPassenger = data.passengers[index];
+            return {
+               ...passenger,
+               ...updatedPassenger
+            };
+         });
+   
+         const updatedTrip = {
+            ...trip,
+            passengers: updatedPassengers,
+            notes: data.notes,
+            flight: data.flight
+         }
+   
+         setTrip(updatedTrip);
+   
+         //todo: hit iway to get booking possiblity
+      
+         setIsLoading(true);
+         fetch('/api/booking/check', {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'}, 
+            body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car})})
+            .then((response) => response.json())
+            .then((data) => {
+   
+               setIsLoading(false);
+               if(data.response){
+                  
+                  //todo: proceed with payment and booking an order
+               }else{
+                  setHasError('Sorry we cannot create a booking with your selected pickup date and vehicle. Click the button to start your book again')
+               }
+            })
+            .catch((error) => {
+               console.error('Error fetching data:', error);
+            });
       }
-
-      setTrip(updatedTrip);
-
-      //todo: hit iway to get booking possiblity
    }
 
    useEffect(() => {
@@ -413,7 +439,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
                   </Tab.Panels>
                </Tab.Group>
                <div className="pt-8">
-                  <ButtonPrimary onClick={handleSubmit(onSubmit)}>Confirm and pay</ButtonPrimary>
+                  <ButtonPrimary isLoading={isLoading} onClick={handleSubmit(onSubmit)}>Confirm and pay</ButtonPrimary>
+                  {hasError && (<BookingFailure message={hasError} buttonUrl="/" buttonText="Book" />)}
                </div>
             </div>
          </div>

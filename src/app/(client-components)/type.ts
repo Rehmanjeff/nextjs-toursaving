@@ -13,7 +13,7 @@ export interface PropertyType {
 }
 
 export interface Location {
-   id: string;
+   id: string | number;
    name: string;
    icon?: string;
    coords?: string;

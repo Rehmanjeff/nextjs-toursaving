@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { saveSearch } from '@/app/services/search';
 import { saveCars } from '@/app/services/car';
+import { rewriteSearch } from '@/app/services/iway';
  
 export async function POST(request: Request) {
   
@@ -36,7 +37,8 @@ export async function POST(request: Request) {
 
       if(response.result && response.result.length){
          
-         const searchId = await saveSearch(search, response);
+         const newSearch = rewriteSearch(search, response.result);
+         const searchId = await saveSearch(newSearch, response);
          const data = await saveCars(searchId, response.result, 'iway', search);
          response = data;
       }else{
