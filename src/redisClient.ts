@@ -1,10 +1,5 @@
 import Redis, { RedisOptions, Redis as RedisClient } from 'ioredis';
 
-const redisOptions: RedisOptions = {
-  host: 'localhost',
-  port: 6379,
-};
-
-const redisClient: RedisClient = new Redis(redisOptions);
+const redisClient: RedisClient = new Redis("rediss://default:103383b069d24a48968ab39c296cb95b@cheerful-gecko-37606.upstash.io:37606");
 
 export default redisClient;
