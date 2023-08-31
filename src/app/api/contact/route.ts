@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import db from '@/db.js';
+import { sql } from '@vercel/postgres';
 import { isEmailValid } from '@/utils/random';
 
 export async function POST(request: Request) {
@@ -14,10 +14,9 @@ export async function POST(request: Request) {
          return NextResponse.json({ error: 'Invalid email format.' });
       }
 
-      const query = `INSERT INTO user_contacts (full_name, email, description, search) VALUES ($1, $2, $3, $4) RETURNING *`;
-      const result = await db.query(query, [name, email, description, JSON.stringify(search)]);
-
-      return NextResponse.json({ data: result.rows });
+      await sql`CREATE TABLE IF NOT EXISTS user_contacts (id SERIAL PRIMARY KEY, full_name VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, description TEXT, created_at TIMESTAMPTZ DEFAULT current_timestamp, updated_at TIMESTAMPTZ DEFAULT current_timestamp, search TEXT);`;
+      const result = await sql`INSERT INTO user_contacts (full_name, email, description, search) VALUES (${name}, ${email}, ${description}, ${JSON.stringify(search)});`;
+      return NextResponse.json({ data: result });
   } catch (err) {
       return NextResponse.json({ error: 'An error occurred while processing the request.' });
   }
