@@ -57,7 +57,7 @@ const SearchResults: FC<SearchResultssProps> = () => {
                setCars(data.response);
                setFilteredCars(data.response);
                
-               if(data.response.length){
+               if(data.response && data.response.length){
 
                   let minPrice = 0;
                   let maxPrice = 0;
