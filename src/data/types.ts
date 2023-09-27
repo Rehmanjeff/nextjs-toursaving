@@ -175,7 +175,7 @@ export interface CarFullDataType {
 
 export interface Passenger {
    name: string;
-   email?: string;
+   email: string;
    phoneNumber: {
       countryCode: string,
       number: string

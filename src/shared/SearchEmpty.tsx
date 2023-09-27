@@ -50,16 +50,14 @@ const SearchEmpty: FC<SearchEmptyProps> = () => {
    
          const data = await response.json();
    
-         if(data.error){
-         
+         if (data.error) {
             showNotification('Error: ' + data.error, 'error');
-         }else{
-
+         } else {
             showNotification('Your request has been sent successfully', 'success');
          }
+
          reset({ email: "", name: "", description: ""})
       } catch (error) {
-
          showNotification('Error: ' + error, 'error');
       }
 

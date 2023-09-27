@@ -1,8 +1,8 @@
-import { CarDataType } from "@/data/types";
-import { UserSearch } from "../(client-components)/type";
+import { BookedAdditionalService, CarDataType, Trip } from "@/data/types";
+import { ChaufferServiceType, TransferServiceType, UserSearch } from "../(client-components)/type";
 import axios from 'axios';
 import { NextResponse } from 'next/server';
-import { formatDate } from "@/utils/common";
+import { formatDate, generateRandomNumber } from "@/utils/common";
 
 export function rewriteSearch(search : UserSearch, response : any) : UserSearch{
 
@@ -58,7 +58,6 @@ export async function isBookingPossible(search: UserSearch, lang: string, car: C
    }else if(search.type == 'chauffer'){
 
       let datee = search.chauffer?.startDate as number;
-      startPlaceId = search.transfer?.pickUp?.id;
       startPlaceId = search.chauffer?.pickUp?.id;
       pickUpDateTime = formatDate(datee.toString(), search.chauffer?.startTime as string);
    }
@@ -82,4 +81,107 @@ export async function isBookingPossible(search: UserSearch, lang: string, car: C
 
       return null;
    }
+}
+
+export async function createBooking(trip : Trip, search: UserSearch, car: CarDataType, lang: string, bookingNumber: string){
+
+   let startPlaceId = null;
+   let pickUpDateTime = null;
+   let additionalServices : string[] | null = null;
+   let searchType : TransferServiceType | ChaufferServiceType | null = null;
+   let finishLocation = null;
+   let isRent: boolean = true;
+   let rentDuration: number = 0;
+   
+   if (search.type == 'transfer') {
+      isRent = false;
+      searchType = search.transfer as TransferServiceType;
+      let datee = searchType?.startDate as number;
+      pickUpDateTime = formatDate(datee.toString(), search.transfer?.startTime as string);
+      finishLocation = {
+         "address": searchType?.destination?.name,
+         "place_id": searchType?.destination?.id,
+         "location": searchType?.destination?.coords,
+         "flight_number": trip.flight ? trip.flight.number : "",
+         "terminal_number": trip.flight ? trip.flight.terminal : "",
+         "time": ""
+      }
+   } else if (search.type == 'chauffer') {
+      searchType = search.chauffer as ChaufferServiceType;
+      rentDuration = search.chauffer?.hours as number
+   }
+
+   let datee = searchType?.startDate as number;
+   pickUpDateTime = formatDate(datee.toString(), search.transfer?.startTime as string);
+
+   
+   if(trip.additionalServices){
+      additionalServices = trip.additionalServices.map((item: BookedAdditionalService) => item.id)
+   }
+
+   const passengers = trip.passengers.map((passenger) => {
+      const { name, phoneNumber, email } = passenger;
+      const phone = phoneNumber ? `${phoneNumber.countryCode}${phoneNumber.number}` : '';
+      return { name, phone, email };
+   })
+
+   const url = `https://sandbox.iway.io/transnextgen/v4/orders?lang=${lang}`;
+   const headers = {
+      "Authorization": `Bearer ${process.env.IWAY_API_TOKEN}`,
+      "Content-Type": "application/json"
+   };
+   const data = {
+      "user_id": process.env.IWAY_USER_ID,
+      "lang": lang,
+      "trips": [
+         {
+            "user_id": process.env.IWAY_USER_ID,
+            "price_id": car.priceId,
+            "currency": car.currency.toUpperCase(),
+            "passengers_number": trip.passengersNumber,
+            "adults_amount": trip.adultsNumber,
+            "children_amount": trip.childrenNumber,
+            "text_tablet": trip.flight?.greetingSign ?? '',
+            "comment": trip.notes,
+            "passengers": passengers,
+            "internal_number": bookingNumber,
+            "additional_services": additionalServices,
+            "send_params": {
+               "send_client_voucher": false,
+               "send_admin_voucher": true,
+               "send_client_doc": false,
+               "send_admin_doc": true
+            },
+            "platform": 7,
+            "flexible_tariff": true,
+            "flexible_tariff_agreement": true,
+            "address": "",
+            "location": '',
+            "additional_address": true,
+            "start_location": {
+               "address": searchType?.pickUp?.name,
+               "place_id": startPlaceId,
+               "location": searchType?.pickUp?.coords,
+               "flight_number": trip.flight ? trip.flight.number : '',
+               "terminal_number": trip.flight ? trip.flight.terminal : '',
+               "time": pickUpDateTime
+            },
+            "finish_location": finishLocation,
+            "additional_change_itinerary": 1,
+            "additional_wait": 1,
+            "fare_on_toll_road": 1,
+            "is_rent": isRent,
+            "duration": rentDuration * 3600,
+            "lang": lang
+         }
+      ],
+   }
+
+   const response = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(data) });
+   const json = await response.json()
+   if (json.error) {
+      return { success : false, error: json.error, data: null };
+   }
+
+   return { success : true, error: null, data: json.result };   
 }

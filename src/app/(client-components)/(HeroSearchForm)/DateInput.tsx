@@ -2,7 +2,7 @@
 
 import React, { Fragment, useState, useRef } from "react";
 import { FC } from "react";
-import DatePicker from "react-datepicker";
+import DatePicker, { ReactDatePickerCustomHeaderProps, ReactDatePickerProps } from "react-datepicker";
 import { Popover, Transition } from "@headlessui/react";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import DatePickerCustomHeaderTwoMonth from "@/components/DatePickerCustomHeaderTwoMonth";
@@ -88,8 +88,8 @@ export interface DateInputProps {
                         monthsShown={2}
                         showPopperArrow={false}
                         inline
-                        renderCustomHeader={(p) => (
-                           <DatePickerCustomHeaderTwoMonth {...p} />
+                        renderCustomHeader={(params: ReactDatePickerCustomHeaderProps) => (
+                           <DatePickerCustomHeaderTwoMonth {...params} />
                         )}
                         renderDayContents={(day, date) => (
                            <DatePickerCustomDay dayOfMonth={day} date={date} />

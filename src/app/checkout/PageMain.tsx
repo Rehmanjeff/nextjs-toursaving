@@ -21,6 +21,8 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { isValidExpiration, creditCardNumberRegExp } from "@/utils/common";
 import BookingFailure from "@/shared/BookingFailure";
+import Notification from '@/shared/Notification';
+import { useNotification } from "@/hooks/useNotification";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -43,9 +45,11 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       { value: "+971", label: "UAE" },
       { value: "+966", label: "Saudi Arabia" }
    ]);
+   const { notification, showNotification, hideNotification } = useNotification();
 
    const passenger : Passenger = {
       name : '',
+      email: '',
       phoneNumber: {
          countryCode: countryOptions[0].value,
          number: ''
@@ -91,6 +95,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       passengers: yup.array().of(
          yup.object().shape({
             name: yup.string().required('Name is required'),
+            email: yup.string().email('Invalid email format').required('Email is required'),
             phoneNumber: yup.object().shape({
                number: yup.string().required('Phone number is required'),
                countryCode: yup.string().required('Country code is required'),
@@ -126,28 +131,43 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
          }
    
          setTrip(updatedTrip);
-   
-         //todo: hit iway to get booking possiblity
-      
          setIsLoading(true);
+
          fetch('/api/booking/check', {
             method: 'POST', 
             headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car})})
-            .then((response) => response.json())
-            .then((data) => {
-   
+            body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car})
+         }).then((response) => response.json()).then((data) => {
+            if (data.response && data.response.error === null && data.response.result && data.response.result.allow_booking === true) {
+               
+               fetch('/api/booking/confirm', {
+                  method: 'POST', 
+                  headers: {'Content-Type': 'application/json'}, 
+                  body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car, trip: updatedTrip})
+               }).then((response) => response.json()).then((data) => {
+      
+                  setIsLoading(false);
+                  if (data.response.error) {
+                     
+                  } else {
+                     showNotification('Your booking has been placed successfully', 'success');
+                  }
+
+                  setTimeout(() => { hideNotification() }, 3000);
+               }).catch((error) => {
+
+                  setIsLoading(false);
+                  showNotification('Error: ' + error, 'error');
+                  setTimeout(() => { hideNotification() }, 3000);
+               });
+            } else {
                setIsLoading(false);
-               if(data.response){
-                  
-                  //todo: proceed with payment and booking an order
-               }else{
-                  setHasError('Sorry we cannot create a booking with your selected pickup date and vehicle. Click the button to start your book again')
-               }
-            })
-            .catch((error) => {
-               console.error('Error fetching data:', error);
-            });
+               setHasError('Sorry we cannot create a booking with your selected pickup date and vehicle. Click the button to start your book again')
+            }
+         }).catch((error) => {
+            setIsLoading(false);
+            console.error('Error fetching data:', error);
+         });
       }
    }
 
@@ -203,6 +223,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       if (totalPassengers > trip.passengers.length) {
          const newPassenger: Passenger = {
             name: '',
+            email: '',
             phoneNumber: {
                countryCode: countryOptions[0].value,
                number: ''
@@ -360,9 +381,15 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             <div className="flex flex-col space-y-5">
             {trip.passengers.map((item, index) => (
             <div key={index} className="flex flex-col space-y-5">
-               <div className="space-y-1">
-                  <Label>First and last name</Label>
-                  <Input type="text" placeholder="David Burner" error={errors.passengers && errors.passengers[index] && errors.passengers[index]?.name ? errors.passengers[index]?.name?.message : ''} {...register(`passengers[${index}].name` as `passengers.${number}.name`)} />
+               <div className="flex space-x-5">
+                  <div className="flex-1 space-y-1">
+                     <Label>First and last name</Label>
+                     <Input type="text" placeholder="David Burner" error={errors.passengers && errors.passengers[index] && errors.passengers[index]?.name ? errors.passengers[index]?.name?.message : ''} {...register(`passengers[${index}].name` as `passengers.${number}.name`)} />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                     <Label>Email</Label>
+                     <Input type="text" placeholder="user@hotmail.com" error={errors.passengers && errors.passengers[index] && errors.passengers[index]?.email ? errors.passengers[index]?.email?.message : ''} {...register(`passengers[${index}].email` as `passengers.${number}.email`)} />
+                  </div>
                </div>
                <div className="space-y-1">
                   <Label>Contact number</Label>
@@ -510,6 +537,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             {renderPassengerDetails()}
             {renderAdditionalNote()}
             {renderPaymentDetails()}
+            {notification.show && <Notification type={notification.type} message={notification.message} />}
          </div>
       );
    };
