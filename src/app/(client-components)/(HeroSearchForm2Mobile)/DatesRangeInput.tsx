@@ -42,8 +42,8 @@ const StayDatesRangeInput: FC<StayDatesRangeInputProps> = ({
           monthsShown={2}
           showPopperArrow={false}
           inline
-          renderCustomHeader={(p) => <DatePickerCustomHeaderTwoMonth {...p} />}
-          renderDayContents={(day, date) => (
+          renderCustomHeader={(p:any) => <DatePickerCustomHeaderTwoMonth {...p} />}
+          renderDayContents={(day:any, date:any) => (
             <DatePickerCustomDay dayOfMonth={day} date={date} />
           )}
         />

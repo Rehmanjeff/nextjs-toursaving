@@ -104,10 +104,10 @@ const DatesRangeInput: FC<DatesRangeInputProps> = ({
                     monthsShown={2}
                     showPopperArrow={false}
                     inline
-                    renderCustomHeader={(p) => (
+                    renderCustomHeader={(p:any) => (
                       <DatePickerCustomHeaderTwoMonth {...p} />
                     )}
-                    renderDayContents={(day, date) => (
+                    renderDayContents={(day:any, date:any) => (
                       <DatePickerCustomDay dayOfMonth={day} date={date} />
                     )}
                   />
