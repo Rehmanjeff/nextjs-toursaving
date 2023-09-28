@@ -19,7 +19,7 @@ import ChooseChildSeats from "@/components/ChooseChildSeats";
 import { useForm } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { isValidExpiration, creditCardNumberRegExp } from "@/utils/common";
+import { isValidExpiration, creditCardNumberRegExp, getErrorMessage } from "@/utils/common";
 import BookingFailure from "@/shared/BookingFailure";
 import Notification from '@/shared/Notification';
 import { useNotification } from "@/hooks/useNotification";
@@ -135,7 +135,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
 
          fetch('/api/booking/check', {
             method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car})
          }).then((response) => response.json()).then((data) => {
             if (data.response && data.response.error === null && data.response.result && data.response.result.allow_booking === true) {
@@ -148,25 +148,30 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       
                   setIsLoading(false);
                   if (data.response.error) {
-                     
-                  } else {
-                     showNotification('Your booking has been placed successfully', 'success');
-                  }
 
-                  setTimeout(() => { hideNotification() }, 3000);
+                     throw data.response.error;
+                  } else {
+
+                     console.log('success')
+                  }
                }).catch((error) => {
 
+                  const err = getErrorMessage(error);
                   setIsLoading(false);
-                  showNotification('Error: ' + error, 'error');
+                  showNotification(err, 'error');
                   setTimeout(() => { hideNotification() }, 3000);
                });
             } else {
+
                setIsLoading(false);
                setHasError('Sorry we cannot create a booking with your selected pickup date and vehicle. Click the button to start your book again')
             }
          }).catch((error) => {
+
+            const err = getErrorMessage(error);
             setIsLoading(false);
-            console.error('Error fetching data:', error);
+            showNotification(err, 'error');
+            setTimeout(() => { hideNotification() }, 3000);
          });
       }
    }

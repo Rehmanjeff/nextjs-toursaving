@@ -22,3 +22,27 @@ model pgmigrations {
   name   String   @db.VarChar(255)
   run_on DateTime @db.Timestamp(6)
 }
+
+model bookings {
+  id             Int       @id @default(autoincrement())
+  user_id        Int?      
+  booking_number String    
+  booking_data   String    @db.VarChar(10000)
+  lookup_number  String    
+  voucher        String
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6) @updatedAt
+  user           users?    @relation(fields: [user_id], references: [id])
+}
+
+model users {
+  id             Int       @id @default(autoincrement())
+  first_name     String     
+  last_name      String  
+  gender         Int    
+  email          String 
+  phone_number   String   
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime  @default(now()) @db.Timestamptz(6) @updatedAt
+  bookings       bookings[]
+}

@@ -183,5 +183,5 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
       return { success : false, error: json.error, data: null };
    }
 
-   return { success : true, error: null, data: json.result };   
+   return { success : true, error: null, data: json.result[0] };   
 }

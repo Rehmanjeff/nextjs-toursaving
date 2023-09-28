@@ -53,3 +53,16 @@ export const generateRandomNumber = (digits: number): number => {
    const max = Math.pow(10, digits) - 1;
    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
+
+export const getErrorMessage = (error : any): string => {
+   let err;
+   if (error.message) {
+      err = error.message;
+   } else if (error.name) {
+      err = error.name;
+   } else {
+      err = error as string
+   }
+
+   return err;
+}
