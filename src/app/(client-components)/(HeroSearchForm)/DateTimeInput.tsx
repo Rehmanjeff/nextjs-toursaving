@@ -103,14 +103,14 @@ const DateTimeInput: FC<DateTimeInputProps> = ({
                   <div className="overflow-hidden rounded-3xl shadow-lg ring-1 ring-black ring-opacity-5 bg-white dark:bg-neutral-800 p-8">
                      <DatePicker
                         selected={startDate}
-                        onChange={(date) => onChangeDate([date])}
+                        onChange={(date:any) => onChangeDate([date])}
                         monthsShown={2}
                         showPopperArrow={false}
                         inline
-                        renderCustomHeader={(p) => (
+                        renderCustomHeader={(p:any) => (
                            <DatePickerCustomHeaderTwoMonth {...p} />
                         )}
-                        renderDayContents={(day, date) => (
+                        renderDayContents={(day:any, date:any) => (
                            <DatePickerCustomDay dayOfMonth={day} date={date} />
                         )}
                      />
