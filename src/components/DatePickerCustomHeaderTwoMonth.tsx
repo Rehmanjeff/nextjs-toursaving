@@ -7,7 +7,7 @@ const DatePickerCustomHeaderTwoMonth = ({
   customHeaderCount,
   decreaseMonth,
   increaseMonth,
-}: ReactDatePickerCustomHeaderProps) => {
+}: any) => {
   return (
     <div>
       <button
