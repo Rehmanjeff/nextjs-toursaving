@@ -54,9 +54,8 @@ const SearchEmpty: FC<SearchEmptyProps> = () => {
             showNotification('Error: ' + data.error, 'error');
          } else {
             showNotification('Your request has been sent successfully', 'success');
+            reset({ email: "", name: "", description: ""})
          }
-
-         reset({ email: "", name: "", description: ""})
       } catch (error) {
          showNotification('Error: ' + error, 'error');
       }
