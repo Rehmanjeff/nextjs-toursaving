@@ -29,6 +29,7 @@ model bookings {
   booking_number String    
   booking_data   String    @db.VarChar(10000)
   lookup_number  String    
+  supplier       String    @default("iway")
   voucher        String
   created_at     DateTime  @default(now()) @db.Timestamptz(6)
   updated_at     DateTime  @default(now()) @db.Timestamptz(6) @updatedAt

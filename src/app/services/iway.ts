@@ -87,7 +87,7 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
 
    let startPlaceId = null;
    let pickUpDateTime = null;
-   let additionalServices : string[] | null = null;
+   let additionalServices : any = null;
    let searchType : TransferServiceType | ChaufferServiceType | null = null;
    let finishLocation = null;
    let isRent: boolean = true;
@@ -116,7 +116,7 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
 
    
    if(trip.additionalServices){
-      additionalServices = trip.additionalServices.map((item: BookedAdditionalService) => item.id)
+      additionalServices = trip.additionalServices.map((item) => ({ "id": item.id }));
    }
 
    const passengers = trip.passengers.map((passenger) => {
@@ -180,7 +180,7 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
    const response = await fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(data) });
    const json = await response.json()
    if (json.error) {
-      return { success : false, error: json.error, data: null };
+      return { success : false, error: json.error, data: data };
    }
 
    return { success : true, error: null, data: json.result[0] };   
