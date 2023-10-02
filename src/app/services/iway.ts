@@ -148,9 +148,9 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
             "additional_services": additionalServices,
             "send_params": {
                "send_client_voucher": false,
-               "send_admin_voucher": true,
+               "send_admin_voucher": false,
                "send_client_doc": false,
-               "send_admin_doc": true
+               "send_admin_doc": false
             },
             "platform": 7,
             "flexible_tariff": true,

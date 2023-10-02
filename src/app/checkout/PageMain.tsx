@@ -23,6 +23,8 @@ import { isValidExpiration, creditCardNumberRegExp, getErrorMessage } from "@/ut
 import BookingFailure from "@/shared/BookingFailure";
 import Notification from '@/shared/Notification';
 import { useNotification } from "@/hooks/useNotification";
+import useNextRouter from "@/hooks/useNextRouter";
+import { PathName } from "@/routers/types";
 
 export interface CheckOutPagePageMainProps {
   className?: string;
@@ -46,7 +48,8 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       { value: "+966", label: "Saudi Arabia" }
    ]);
    const { notification, showNotification, hideNotification } = useNotification();
-
+   const { redirectTo } = useNextRouter();
+   
    const passenger : Passenger = {
       name : '',
       email: '',
@@ -148,11 +151,12 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
       
                   setIsLoading(false);
                   if (data.response.error) {
-
                      throw data.response.error;
                   } else {
-
-                     console.log('success')
+                     localStorage.removeItem('tour-checkout-vehicle');
+                     localStorage.removeItem('tour-search');
+                     localStorage.setItem('tour-booking-number', data.response.booking);
+                     redirectTo('/pay-done' as any);
                   }
                }).catch((error) => {
 

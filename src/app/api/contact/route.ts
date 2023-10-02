@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma/client';
+import prisma from '@/app/services/prisma';
 import { isEmailValid } from '@/utils/random';
 
 export async function POST(request: Request) {
