@@ -153,8 +153,8 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
                "send_admin_doc": false
             },
             "platform": 7,
-            "flexible_tariff": true,
-            "flexible_tariff_agreement": true,
+            "flexible_tariff": false,
+            "flexible_tariff_agreement": false,
             "address": "",
             "location": '',
             "additional_address": true,
