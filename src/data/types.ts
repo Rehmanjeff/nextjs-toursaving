@@ -1,4 +1,4 @@
-import { UserSearch } from "@/app/(client-components)/type";
+import { DriveType, Location } from "@/app/(client-components)/type";
 import { Route } from "@/routers/types";
 import { StaticImageData } from "next/image";
 
@@ -120,6 +120,10 @@ export type Supplier = 'iway'
 
 export type Currency = 'usd' | 'bd'
 
+export type Language = 'english' | 'arabic'
+
+export type PaymentMethod = 'credit-card'
+
 export interface CarAdditionalService {
    id: string,
    serviceId?: string,
@@ -167,6 +171,13 @@ export interface CarDataType {
   hasFastBooking? : boolean;
 }
 
+export interface BookedCar {
+   title: string;
+   shortDescription: string;
+   featuredImage: StaticImageData | string;
+   seats: number;
+}
+
 export interface CarFullDataType {
    searchId : string;
    data: CarDataType;
@@ -209,3 +220,53 @@ export type FlightDetails = {
    terminal: string,
    greetingSign: string
 };
+
+export interface User {
+   id: string;
+   firstName: string;
+   lastName: string;
+   gender: number;
+   email: string;
+   phoneNumber: string;
+}
+
+export interface Payment {
+   id: number;
+   bookingNumber: string;
+   serviceProvider: string;
+   lookupNumber: string;
+   amount: number;
+   currency: Currency;
+   method: PaymentMethod;
+   createdAt: number;
+}
+
+export interface Booking {
+   user?: User,
+   number: string,
+   driveType: DriveType;
+   status: string;
+   flight?: FlightDetails;
+   car: BookedCar;
+   passengers: {
+      total: number;
+      adults: number;
+      children: number;
+      list: Passenger[];
+   };
+   pickUp: Location;
+   destination: Location | null;
+   startDateTime: string;
+   endDateTime: string | null;
+   hours: number | null;
+   voucher: string;
+   supplier: Supplier;
+   lookupNumber: string;
+   payment: Payment;
+   currency: Currency;
+   lang: Language;
+   notes: string;
+   canCancel: boolean;
+   createdAt?: number;
+   updatedAt?: number;
+}

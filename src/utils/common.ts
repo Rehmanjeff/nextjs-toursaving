@@ -1,3 +1,4 @@
+
 export const isValidExpiration = (expiration : string) => {
 
    const [yearMonth, month] = expiration.split('-');
@@ -20,6 +21,23 @@ export const isValidExpiration = (expiration : string) => {
 };
 
 export const creditCardNumberRegExp = /^[0-9]{16}$/;
+
+export function formatDateDescriptive(timestamp: number): string {
+   const date = new Date(timestamp);
+ 
+   const options: Intl.DateTimeFormatOptions = {
+     weekday: 'long',
+     month: 'long',
+     day: 'numeric',
+     hour: 'numeric',
+     minute: 'numeric',
+     hour12: true,
+   };
+ 
+   const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+ 
+   return formattedDate;
+ }
 
 export const formatDate = (timestamp: string, time?: string, customFormat?: string): string => {
    const date = new Date(parseInt(timestamp));

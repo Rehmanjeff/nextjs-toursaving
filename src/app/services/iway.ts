@@ -1,8 +1,8 @@
-import { BookedAdditionalService, CarDataType, Trip } from "@/data/types";
-import { ChaufferServiceType, TransferServiceType, UserSearch } from "../(client-components)/type";
+import { BookedAdditionalService, Booking, CarDataType, FlightDetails, Passenger, Trip } from "@/data/types";
+import { ChaufferServiceType, TransferServiceType, UserSearch, Location, DriveType } from "../(client-components)/type";
 import axios from 'axios';
 import { NextResponse } from 'next/server';
-import { formatDate, generateRandomNumber } from "@/utils/common";
+import { formatDate, formatDateDescriptive, generateRandomNumber } from "@/utils/common";
 
 export function rewriteSearch(search : UserSearch, response : any) : UserSearch{
 
@@ -184,4 +184,122 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
    }
 
    return { success : true, error: null, data: json.result[0] };   
+}
+
+export async function fetchBooking(booking: any){
+
+   let bookingDetails : Booking;
+   
+   const headers = {
+      Authorization: `Bearer ${process.env.IWAY_API_TOKEN}`,
+   };
+   const iwayUser = process.env.IWAY_USER_ID;
+   const url = `https://sandbox.iway.io/transnextgen/v4/orders/trips?lang=${booking.lang}&user_id=${iwayUser}&order_id=${booking.lookup_number}`;
+   const apiResponse = await fetch(url, {
+      headers: {
+         ...headers
+      }
+   });
+
+   let response = await apiResponse.json();
+
+   if (!response.result || !response.result.orders) {
+
+      if (response.error) {
+         
+         return { success : false, error: response.error.message, bookingDetails: null };
+      } else {
+         
+         return { success : false, error: response.error.message, bookingDetails: null };
+      }
+   } else if (response.result.orders.length == 0) {
+
+      return { success : false, error: 'booking not found', bookingDetails: null };
+   } else {
+
+      const bookingData = response.result.orders[0];
+      let flightDet : FlightDetails | null;
+      let destination : Location | null;
+
+      if (bookingData.arrival_number != '' || bookingData.departure_number != '') {
+         flightDet = {
+            number: bookingData.arrival_number != '' ? bookingData.arrival_number : bookingData.departure_number,
+            terminal: bookingData.start_place.terminal_number != '' ? bookingData.start_place.terminal_number : bookingData.finish_place.terminal_number,
+            greetingSign: bookingData.table
+         }
+      } else {
+         flightDet = null;
+      }
+
+      const passengers = bookingData.passengers.map((passenger: any) => ({
+         name: passenger.name,
+         email: passenger.email,
+         phoneNumber: {
+            countryCode: '',
+            number: passenger.phone
+         }
+      }));
+
+      const pickup : Location = {
+         id: bookingData.location_address_object.geo_data.place_id,
+         name: bookingData.location_address_object.address,
+      }
+
+      if (booking.drive_type == 'transfer') {
+         destination = {
+            id: bookingData.destination_address_object.geo_data.place_id,
+            name: bookingData.destination_address_object.address, 
+         }
+      } else {
+         destination = null;
+      }
+      
+      bookingDetails = {
+         number: bookingData.internal_number,
+         driveType: booking.drive_type as DriveType,
+         status: booking.status,
+         car: {
+            title: bookingData.car_data.title,
+            shortDescription: bookingData.car_data.models,
+            seats: bookingData.car_data.capacity,
+            featuredImage: process.env.NEXT_PUBLIC_IWAY_CAR_PHOTO_URI + "/" + bookingData.car_data.photo
+         },
+         passengers: {
+            total: bookingData.passengers_number,
+            adults: bookingData.adults_amount,
+            children: bookingData.children_amount,
+            list: passengers,
+         },
+         pickUp: pickup,
+         destination: destination,
+         startDateTime: formatDateDescriptive(new Date(bookingData.date_arrival).getTime()),
+         endDateTime: bookingData.date_departure ? formatDateDescriptive(new Date(bookingData.date_departure).getTime()) : null,
+         hours: booking.drive_type == 'chauffer' ? bookingData.duration / 3600 : null,
+         voucher: booking.voucher,
+         supplier: 'iway',
+         lookupNumber: booking.lookup_number,
+         payment: {
+            id: booking.payment.id,
+            bookingNumber: booking.booking_number,
+            serviceProvider: booking.payment.service_provider,
+            lookupNumber: booking.payment.lookup_number,
+            amount: booking.payment.amount,
+            currency: booking.payment.currency,
+            method: booking.payment.method,
+            createdAt: booking.payment.created_at
+         },
+         currency: bookingData.currency,
+         lang: bookingData.lang,
+         notes: bookingData.notes,
+         canCancel: false,
+         createdAt: booking.created_at.getTime(),
+         updatedAt: booking.updated_at.getTime()
+      }
+
+      if (flightDet) {
+         bookingDetails.flight = flightDet;
+      }
+
+      return { success : true, error: null, bookingDetails: bookingDetails };
+   }
 }
