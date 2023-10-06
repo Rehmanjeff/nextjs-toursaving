@@ -28,7 +28,7 @@ export async function GET(request: Request, {params}: {params: {booking: string}
       
    } catch (error:any) {
       
-      data = { success: false, error: error as string, data: null };
+      data = { success: false, error: error.toString(), data: null };
    }
 
    return NextResponse.json({ response: data });

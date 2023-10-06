@@ -44,7 +44,8 @@ const PayPage: FC<PayPageProps> = () => {
 
                   setBooking(data.response.data as Booking);
                } else {
-                  showNotification(data.response.response.error, 'error');
+                  
+                  showNotification(data.response.error, 'error');
                   setTimeout(() => { hideNotification() }, 3000);
                }
 

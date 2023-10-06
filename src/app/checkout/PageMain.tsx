@@ -141,7 +141,7 @@ const CheckOutPagePageMain: FC<CheckOutPagePageMainProps> = ({
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car})
          }).then((response) => response.json()).then((data) => {
-            if (data.response && data.response.error === null && data.response.result && data.response.result.allow_booking === true) {
+            if ((data.response && data.response.error === null && data.response.result && data.response.result.allow_booking === true) || search?.type == 'chauffer') {
                
                fetch('/api/booking/confirm', {
                   method: 'POST', 

@@ -96,8 +96,6 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
    if (search.type == 'transfer') {
       isRent = false;
       searchType = search.transfer as TransferServiceType;
-      let datee = searchType?.startDate as number;
-      pickUpDateTime = formatDate(datee.toString(), search.transfer?.startTime as string);
       finishLocation = {
          "address": searchType?.destination?.name,
          "place_id": searchType?.destination?.id,
@@ -110,11 +108,10 @@ export async function createBooking(trip : Trip, search: UserSearch, car: CarDat
       searchType = search.chauffer as ChaufferServiceType;
       rentDuration = search.chauffer?.hours as number
    }
-
-   let datee = searchType?.startDate as number;
-   pickUpDateTime = formatDate(datee.toString(), search.transfer?.startTime as string);
-
    
+   let datee = searchType?.startDate as number;
+   pickUpDateTime = formatDate(datee.toString(), searchType?.startTime as string);
+
    if(trip.additionalServices){
       additionalServices = trip.additionalServices.map((item) => ({ "id": item.id }));
    }

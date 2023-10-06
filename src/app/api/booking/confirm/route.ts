@@ -7,7 +7,7 @@ import { CarDataType, Currency, Supplier, Trip } from '@/data/types';
 import * as puppeteer from 'puppeteer';
 import * as path from 'path';
 import * as ejs from 'ejs';
-import { UserSearch } from '@/app/(client-components)/type';
+import { DriveType, UserSearch } from '@/app/(client-components)/type';
 import { getCurrencySymbol } from "@/utils/currency";
 import { mailOptions, transporter } from '@/app/services/nodemailer';
 import Mail from 'nodemailer/lib/mailer';
@@ -46,9 +46,9 @@ export async function POST(request: Request) {
          throw 'invalid booking information';
       }
       
-   } catch (error) {
+   } catch (error: any) {
 
-      data = { success: false, error: error as string, data: null };
+      data = { success: false, error: error.toString(), data: null };
    }
    
    return NextResponse.json({ response: data });
@@ -66,9 +66,9 @@ const preBooking = async (search: UserSearch, trip: Trip, bookingNumber: string)
       }
       
       return { success : true, error: null };
-   } catch (error) {
+   } catch (error: any) {
 
-      return { success : false, error: error };
+      return { success : false, error: error.toString() };
    }
 }
 
@@ -84,7 +84,7 @@ const postBooking = async (search: UserSearch, trip: Trip, car: CarDataType, boo
          currencySymbol: getCurrencySymbol(car?.currency)
       });
 
-      const bookingResult = await saveBooking(bookingNumber, bookingData, lookupNumber, voucherFile, supplier);
+      const bookingResult = await saveBooking(bookingNumber, bookingData, lookupNumber, voucherFile, supplier, search.type as DriveType);
 
       const paymentResult = await savePayment(bookingNumber, '', '', car.currency, trip);
 
@@ -118,12 +118,13 @@ const savePayment = async (bookingNumber: string, serviceProvider: string, looku
    }
 }
 
-const saveBooking = async (bookingNumber: string, bookingData: any, lookupNumber: string, voucherFileName: string, supplier: Supplier) => {
+const saveBooking = async (bookingNumber: string, bookingData: any, lookupNumber: string, voucherFileName: string, supplier: Supplier, driveType: DriveType) => {
    try {
       
       const result = await prisma.bookings.create({
          data: {
             booking_number: bookingNumber,
+            drive_type: driveType,
             booking_data: JSON.stringify(bookingData),
             lookup_number: lookupNumber,
             voucher: voucherFileName,
