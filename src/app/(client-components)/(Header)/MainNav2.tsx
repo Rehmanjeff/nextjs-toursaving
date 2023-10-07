@@ -7,12 +7,16 @@ import AvatarDropdown from "./AvatarDropdown";
 import HeroSearchForm2MobileFactory from "../(HeroSearchForm2Mobile)/HeroSearchForm2MobileFactory";
 import Link from "next/link";
 import { Route } from "@/routers/types";
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 export interface MainNav2Props {
   className?: string;
 }
 
 const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
+
+   const { data: session } = useSession();
+
   return (
     <div className={`MainNav2 relative z-10 ${className}`}>
       <div className="px-4 h-20 lg:container flex justify-between">
@@ -36,7 +40,11 @@ const MainNav2: FC<MainNav2Props> = ({ className = "" }) => {
             </Link>
 
             <NotifyDropdown />
-            <AvatarDropdown />
+            {session && session.user ? (
+               <AvatarDropdown />
+            ) : (
+               <div className="cursor-pointer self-center text-opacity-90 group px-4 py-2 hover:border-neutral-400 inline-flex items-center text-sm text-gray-700 dark:text-neutral-300 font-medium hover:text-opacity-100 outline-none" onClick={() => signIn()}>Log in</div>
+            )}
           </div>
           <div className="flex space-x-2 lg:hidden">
             <NotifyDropdown />
