@@ -58,47 +58,47 @@ const PageSignUp: FC<PageSignUpProps> = ({}) => {
       resolver: yupResolver(schema),
    });
    
-   const onSubmit = async (formData : any) => {
+   // const onSubmit = async (formData : any) => {
       
-      const email = formData.email;
-      const password = formData.password;
-      const fullName = formData.fullName;
-      const contactNumber = formData.contactNumber;
+   //    const email = formData.email;
+   //    const password = formData.password;
+   //    const fullName = formData.fullName;
+   //    const contactNumber = formData.contactNumber;
    
-      try {
+   //    try {
          
-         fetch('/api/user/signup', {
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car, trip: updatedTrip})
-         }).then((response) => response.json()).then((data) => {
+   //       fetch('/api/user/signup', {
+   //          method: 'POST', 
+   //          headers: {'Content-Type': 'application/json'}, 
+   //          body: JSON.stringify({'search': search, 'lang': 'en', 'car' : car, trip: updatedTrip})
+   //       }).then((response) => response.json()).then((data) => {
 
-            setIsLoading(false);
-            if (data.response.error) {
-               throw data.response.error;
-            } else {
-               localStorage.removeItem('tour-checkout-vehicle');
-               localStorage.removeItem('tour-search');
-               localStorage.setItem('tour-booking-number', data.response.booking);
-               redirectTo('/pay-done' as any);
-            }
-         }).catch((error) => {
+   //          setIsLoading(false);
+   //          if (data.response.error) {
+   //             throw data.response.error;
+   //          } else {
+   //             localStorage.removeItem('tour-checkout-vehicle');
+   //             localStorage.removeItem('tour-search');
+   //             localStorage.setItem('tour-booking-number', data.response.booking);
+   //             redirectTo('/pay-done' as any);
+   //          }
+   //       }).catch((error) => {
 
-            const err = getErrorMessage(error);
-            setIsLoading(false);
-            showNotification(err, 'error');
-            setTimeout(() => { hideNotification() }, 3000);
-         });
+   //          const err = getErrorMessage(error);
+   //          setIsLoading(false);
+   //          showNotification(err, 'error');
+   //          setTimeout(() => { hideNotification() }, 3000);
+   //       });
       
-         if (result && result.error) {
-            setError('Error: ' + result.error);
-         } else {
-            redirectTo('/account');
-         }
-      } catch (error: any) {
-         setError('Error: ' + error.toString());
-      }
-   };
+   //       if (result && result.error) {
+   //          setError('Error: ' + result.error);
+   //       } else {
+   //          redirectTo('/account');
+   //       }
+   //    } catch (error: any) {
+   //       setError('Error: ' + error.toString());
+   //    }
+   // };
    
    return (
       <div className={`nc-PageSignUp  `}>
@@ -156,7 +156,7 @@ const PageSignUp: FC<PageSignUpProps> = ({}) => {
                   </span>
                   <Input type="password" className="mt-1" error={errors.password ? errors.password.message : ''} {...register('password')} />
                </label>
-               <ButtonPrimary type="button" onClick={handleSubmit(onSubmit)}>Continue</ButtonPrimary>
+               <ButtonPrimary type="button">Continue</ButtonPrimary>
             </form>
 
             {/* ==== */}

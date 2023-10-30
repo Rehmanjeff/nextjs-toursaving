@@ -13,15 +13,16 @@ export async function POST(request: Request) {
       if (!isEmailValid(email)) {
          return NextResponse.json({ error: 'Invalid email format.' });
       }
-
-      const result = await prisma.user_contacts.create({
-         data: {
-            full_name: name,
-            email: email,
-            description: description,
-            search: JSON.stringify(search)
-         }
-      });
+      
+      const result = null
+      // const result = await prisma.user_contacts.create({
+      //    data: {
+      //       full_name: fullName,
+      //       email: email,
+      //       description: description,
+      //       search: JSON.stringify(search)
+      //    }
+      // });
       
       return NextResponse.json({ data: result });
    } catch (err) {
